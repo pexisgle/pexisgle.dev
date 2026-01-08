@@ -186,8 +186,8 @@ export const actions: Actions = {
 
 			if (data.length > 0) {
 				const chunks = [];
-				for (let i = 0; i < data.length; i += 30) {
-					chunks.push(data.slice(i, i + 30));
+				for (let i = 0; i < data.length; i += 20) {
+					chunks.push(data.slice(i, i + 20));
 				}
 				for (const chunk of chunks) {
 					batch.push(
