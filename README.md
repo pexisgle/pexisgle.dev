@@ -1,4 +1,7 @@
-# pexisgle.dev
+# [pexisgle.dev](https://pexisgle.dev)
+
+[![CI](https://github.com/pexisgle/pexisgle.dev/actions/workflows/ci.yml/badge.svg)](https://github.com/pexisgle/pexisgle.dev/actions/workflows/ci.yml)
+[Visit Website](https://pexisgle.dev)
 
 SvelteKit と Cloudflare D1 を使用して構築された、個人的な Web サイトおよびポートフォリオプロジェクトです。
 管理ダッシュボード、ブログ機能、作品紹介（Works）、認証機能などを備えています。
