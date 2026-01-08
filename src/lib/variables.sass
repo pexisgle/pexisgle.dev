@@ -1,0 +1,102 @@
+@use 'sass:map'
+
+$breakpoint-values: ('xs': 0, 'sm': 576px, 'md': 768px, 'lg': 992px, 'xl': 1200px, 'xxl': 1400px, 'xxxl': 1600px) !default
+
+// ========================================
+// Colors
+// ========================================
+$glass-bg: rgba(255, 255, 255, 0.1) !default
+$glass-bg-hover: rgba(255, 255, 255, 0.15) !default
+$glass-border: rgba(255, 255, 255, 0.3) !default
+$glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !default
+
+// ========================================
+// Transitions
+// ========================================
+$transition-fast: 0.2s ease !default
+$transition-normal: 0.3s ease !default
+$transition-slow: 0.4s ease !default
+$transition-all-normal: all 0.3s ease !default
+$transition-transform: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !default
+
+// ========================================
+// Spacing
+// ========================================
+$gap-xs: 0.5rem !default
+$gap-sm: 1rem !default
+$gap-md: 1.5rem !default
+$gap-lg: 2rem !default
+
+// ========================================
+// Border Radius
+// ========================================
+$radius-sm: 8px !default
+$radius-md: 12px !default
+$radius-lg: 16px !default
+
+// ========================================
+// Mixins
+// ========================================
+
+// グラスモーフィズムカードのスタイル
+@mixin glass-card($padding: 2rem, $radius: $radius-lg)
+    padding: $padding
+    border-radius: $radius
+    background: $glass-bg
+    box-shadow: $glass-shadow
+    backdrop-filter: blur(10px)
+    -webkit-backdrop-filter: blur(10px)
+    border: 1px solid $glass-border
+
+// ホバー時の浮き上がり効果
+@mixin hover-lift($translateY: -5px, $shadow: 0 8px 20px rgba(0, 0, 0, 0.2))
+    transition: transform $transition-fast, box-shadow $transition-fast
+    &:hover
+        transform: translateY($translateY)
+        box-shadow: $shadow
+
+// ホバー時の軽い浮き上がり効果
+@mixin hover-lift-subtle($translateY: -2px)
+    transition: $transition-all-normal
+    &:hover
+        transform: translateY($translateY)
+        background: $glass-bg-hover
+        box-shadow: $glass-shadow
+
+// グリッドレイアウト
+@mixin grid-responsive($min-width: 350px, $gap: 2em)
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax($min-width, 1fr))
+    gap: $gap
+    justify-content: center
+    align-items: start
+
+// メディアクエリのショートハンド
+@mixin respond-to($breakpoint, $type: 'min')
+    @if $type == 'min'
+        @media (min-width: map.get($breakpoint-values, $breakpoint))
+            @content
+    @else if $type == 'max'
+        @media (max-width: map.get($breakpoint-values, $breakpoint))
+            @content
+
+// Flexセンター配置
+@mixin flex-center($direction: row)
+    display: flex
+    flex-direction: $direction
+    align-items: center
+    justify-content: center
+
+// テキストの行数制限
+@mixin line-clamp($lines: 3)
+    display: -webkit-box
+    -webkit-line-clamp: $lines
+    -webkit-box-orient: vertical
+    overflow: hidden
+
+// アイコンとテキストの配置
+@mixin icon-text($gap: 0.5rem)
+    display: flex
+    align-items: center
+    gap: $gap
+

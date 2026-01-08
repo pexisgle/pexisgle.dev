@@ -1,0 +1,22 @@
+{
+	"name": "Bun & SvelteKit",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers-contrib/features/bun:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"svelte.svelte-vscode",
+				"oven.bun-vscode",
+				"bradlc.vscode-tailwindcss",
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"arktypeio.arkdark",
+				"syler.sass-indented"
+			]
+		}
+	},
+	"postCreateCommand": "bun install"
+}
