@@ -14,11 +14,22 @@ jobs:
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
-      - name: Download Backup
-        run: |
-          curl -f -H "Authorization: Bearer ${{ secrets.BACKUP_API_KEY }}" \
-            "${{ secrets.APP_URL }}/dashboard/api/admin/export" \
-            -o "pexisgle-backup-${{ steps.date.outputs.date }}.json"
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Run Backup Script
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          BACKUP_API_KEY: ${{ secrets.BACKUP_API_KEY }}
+        run: bun run scripts/backup.ts
 
       - name: Upload Backup Artifact
         uses: actions/upload-artifact@v4
