@@ -11,6 +11,14 @@ on:
 jobs:
   lint-and-format:
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_ACCOUNT_ID: dummy_id
+      CLOUDFLARE_DATABASE_ID: dummy_db_id
+      CLOUDFLARE_D1_TOKEN: dummy_token
+      GITHUB_CLIENT_ID: dummy_client_id
+      GITHUB_CLIENT_SECRET: dummy_client_secret
+      BACKUP_API_KEY: dummy_key
+      APP_URL: http://localhost
     permissions:
       contents: write
     steps:
@@ -44,11 +52,3 @@ jobs:
 
       - name: Build
         run: bun run build
-        env:
-          CLOUDFLARE_ACCOUNT_ID: dummy_id
-          CLOUDFLARE_DATABASE_ID: dummy_db_id
-          CLOUDFLARE_D1_TOKEN: dummy_token
-          GITHUB_CLIENT_ID: dummy_client_id
-          GITHUB_CLIENT_SECRET: dummy_client_secret
-          BACKUP_API_KEY: dummy_key
-          APP_URL: http://localhost
