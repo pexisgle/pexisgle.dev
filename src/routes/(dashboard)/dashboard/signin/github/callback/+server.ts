@@ -42,9 +42,16 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	}
 	const githubUserResponse = await fetch('https://api.github.com/user', {
 		headers: {
-			Authorization: `Bearer ${tokens.accessToken()}`
+			Authorization: `Bearer ${tokens.accessToken()}`,
+			'User-Agent': 'pexisgle-dev'
 		}
 	});
+
+	if (!githubUserResponse.ok) {
+		const text = await githubUserResponse.text();
+		console.error('GitHub User Fetch Error:', githubUserResponse.status, text);
+		return new Response('GitHub API Error', { status: 500 });
+	}
 	const githubUser: GitHubUser = await githubUserResponse.json();
 	const db = generateDB(d1);
 
