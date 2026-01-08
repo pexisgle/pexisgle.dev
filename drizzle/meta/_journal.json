@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1766481588001,
+      "tag": "0000_tense_hitman",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1766495878781,
+      "tag": "0001_nosy_george_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1766496273640,
+      "tag": "0002_broad_jimmy_woo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1766497995314,
+      "tag": "0003_nervous_blob",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1766566964027,
+      "tag": "0004_worried_rockslide",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1767019465561,
+      "tag": "0005_rapid_nemesis",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1767020998917,
+      "tag": "0006_dazzling_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1767022394505,
+      "tag": "0007_nosy_dragon_lord",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1767626751485,
+      "tag": "0008_supreme_zeigeist",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1767627231000,
+      "tag": "0009_needy_night_thrasher",
+      "breakpoints": true
+    }
+  ]
+}
