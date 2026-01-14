@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
+	import FBXViewer from '$lib/components/FBXViewer.svelte';
 	import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
 </script>
@@ -54,6 +55,15 @@
 						</div>
 					</div>
 				{/each}
+			</div>
+		</div>
+		<div class="card model-card">
+			<h2>
+				<Icon icon="mdi:cube-outline" width="32" height="32" />
+				3D Model
+			</h2>
+			<div class="model-container">
+				<FBXViewer src="/assets/pexisgle.glb" />
 			</div>
 		</div>
 		<div class="card certification-card">
@@ -184,6 +194,23 @@
             @include icon-text
             color: #9b59b6
             text-shadow: 0 2px 10px rgba(155, 89, 182, 0.3)
+
+    &.model-card
+        text-align: left
+        width: 100%
+        
+        h2
+            @include icon-text
+            color: #3498db
+            text-shadow: 0 2px 10px rgba(52, 152, 219, 0.3)
+        
+        .model-container
+            width: 100%
+            border-radius: $radius-md
+            overflow: hidden
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(41, 128, 185, 0.1) 100%)
+            border: 1px solid rgba(52, 152, 219, 0.3)
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2)
 
     .skils
         display: flex
