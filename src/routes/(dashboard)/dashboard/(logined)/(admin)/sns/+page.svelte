@@ -109,7 +109,20 @@
 	// svelte-ignore state_referenced_locally
 	const { enhance: importEnhance } = superForm(data.importForm, {
 		id: 'import-form',
-		dataType: 'form'
+		dataType: 'form',
+		onError: ({ result }) => {
+			toast.error(result.error?.message || 'インポート中にエラーが発生しました');
+		},
+		onResult: ({ result }) => {
+			if (result.type === 'failure') {
+				toast.error('インポートに失敗しました。ファイル形式を確認してください。');
+			} else if (result.type === 'error') {
+				toast.error(result.error.message);
+			} else if (result.type === 'success') {
+				toast.success('インポートが完了しました');
+				window.location.reload();
+			}
+		}
 	});
 
 	function startCreate() {

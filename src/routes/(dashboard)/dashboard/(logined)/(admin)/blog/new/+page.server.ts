@@ -19,7 +19,7 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, platform }) => {
+	create: async ({ request, platform }) => {
 		const user = await requireLogin();
 		if (!roleIsOver('admin', user.role)) {
 			return fail(403, { message: 'Forbidden' });

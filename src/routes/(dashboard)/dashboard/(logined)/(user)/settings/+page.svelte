@@ -15,14 +15,24 @@
 	import { UserSolid, GithubSolid } from 'flowbite-svelte-icons';
 	import { superForm } from 'sveltekit-superforms';
 	import type { PageProps } from './$types';
+	import { toast } from '$lib/stores/toast';
 
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	const { form, enhance, errors, delayed } = superForm(data.form, {
 		onError({ result }) {
-			// Handle server errors
 			console.error('Form submission error:', result);
+			toast.error('フォームの送信中にエラーが発生しました');
+		},
+		onResult: ({ result }) => {
+			if (result.type === 'failure') {
+				toast.error('入力内容を確認してください');
+			} else if (result.type === 'error') {
+				toast.error(result.error.message || 'エラーが発生しました');
+			} else if (result.type === 'redirect') {
+				toast.success('設定を更新しました');
+			}
 		}
 	});
 
@@ -92,7 +102,7 @@
 					<Label for="displayUserName" class="mb-2">表示名</Label>
 					<div class="relative">
 						<div
-							class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3 text-gray-500 dark:text-gray-400"
+							class="pointer-events-none absolute inset-y-0 inset-s-0 flex items-center ps-3 text-gray-500 dark:text-gray-400"
 						>
 							<UserSolid class="h-5 w-5" />
 						</div>

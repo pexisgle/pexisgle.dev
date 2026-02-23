@@ -153,6 +153,7 @@
 <div id="menu-bar">
 	<div
 		id="menu-bar-record"
+		role="application"
 		onwheel={handleWheel}
 		ontouchstart={handleTouchStart}
 		ontouchmove={handleTouchMove}

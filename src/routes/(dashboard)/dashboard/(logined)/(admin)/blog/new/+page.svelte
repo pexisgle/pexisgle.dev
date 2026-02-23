@@ -14,14 +14,24 @@
 	import { superForm } from 'sveltekit-superforms';
 	import type { PageProps } from './$types';
 	import CartaEditor from '$lib/components/CartaEditor.svelte';
+	import { toast } from '$lib/stores/toast';
 
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	const { form, errors, constraints, enhance } = superForm(data.form, {
 		onError({ result }) {
-			// Handle server errors
 			console.error('Form submission error:', result);
+			toast.error('フォームの送信中にエラーが発生しました');
+		},
+		onResult: ({ result }) => {
+			if (result.type === 'failure') {
+				toast.error('入力内容を確認してください');
+			} else if (result.type === 'error') {
+				toast.error(result.error.message || 'エラーが発生しました');
+			} else if (result.type === 'redirect') {
+				toast.success('ブログ記事を作成しました');
+			}
 		}
 	});
 </script>
@@ -55,7 +65,7 @@
 		</form>
 	</div>
 
-	<form method="POST" enctype="multipart/form-data" use:enhance class="space-y-6">
+	<form method="POST" action="?/create" enctype="multipart/form-data" use:enhance class="space-y-6">
 		<input type="hidden" name="content" value={$form.content} />
 		<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 			<div class="space-y-6 lg:col-span-1">
