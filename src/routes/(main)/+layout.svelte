@@ -2,7 +2,6 @@
 	import 'ress';
 	import './layout.sass';
 	import 'highlight.js/styles/github-dark.min.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { setupViewTransition } from '$lib/utils/view-transition';
 	import MenuBar from '$lib/components/MenuBar.svelte';
 	import { onMount, onDestroy } from 'svelte';
@@ -35,10 +34,6 @@
 </script>
 
 <MetaTags {...metaTags} />
-
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
 
 <div id="vt-arrow-up"></div>
 <div id="vt-arrow-down"></div>
