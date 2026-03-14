@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  lint-and-format:
+  lint:
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_ACCOUNT_ID: dummy_id
@@ -19,8 +19,6 @@ jobs:
       GITHUB_CLIENT_SECRET: dummy_client_secret
       BACKUP_API_KEY: dummy_key
       APP_URL: http://localhost
-    permissions:
-      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
