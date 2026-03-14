@@ -2,7 +2,7 @@
 	import { fly } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 
-	let isCopied = false;
+	let isCopied = $state(false);
 
 	const handleCopyEmail = async () => {
 		const email = 'info@pexisgle.dev';

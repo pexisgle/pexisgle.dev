@@ -35,15 +35,6 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Format code
-        run: bun run format
-
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v7
-        with:
-          commit_message: 'style: auto format'
-          branch: ${{ github.head_ref }}
-
       - name: Lint
         run: bun run lint
 

@@ -1,6 +1,6 @@
 import { readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 
 async function findSqliteFile(dir: string): Promise<string | null> {
 	try {
@@ -45,7 +45,7 @@ async function main() {
 	const command = 'bun';
 	const commandArgs = ['run', 'drizzle-kit', ...args];
 
-	const child = spawn(command, commandArgs, {
+	const child = spawnSync(command, commandArgs, {
 		stdio: 'inherit',
 		shell: true,
 		env: {
@@ -54,9 +54,7 @@ async function main() {
 		}
 	});
 
-	child.on('exit', (code) => {
-		process.exit(code ?? 0);
-	});
+	process.exit(child.status ?? 0);
 }
 
 main();

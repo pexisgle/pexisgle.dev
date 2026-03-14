@@ -280,7 +280,7 @@
 </script>
 
 <div class="model-viewer" bind:this={container}>
-	<canvas class="three-canvas" bind:this={canvas} />
+	<canvas class="three-canvas" bind:this={canvas}> </canvas>
 </div>
 
 <style lang="sass">
