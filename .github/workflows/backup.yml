@@ -34,7 +34,7 @@ jobs:
         run: bun run scripts/backup.ts
 
       - name: Upload Backup Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: pexisgle-backup-${{ steps.date.outputs.date }}
           path: pexisgle-backup-${{ steps.date.outputs.date }}.json
