@@ -5,10 +5,14 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "pexisgle-dev",
-	"pages_build_output_dir": ".svelte-kit/cloudflare",
-	"compatibility_date": "2025-12-12",
+	"main": ".svelte-kit/cloudflare/_worker.js",
 	"compatibility_flags": ["nodejs_als", "nodejs_compat"],
+	"compatibility_date": "2025-12-12",
 	"observability": {
 		"enabled": true
+	},
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
 	}
 }

@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "bunx --bun vite dev",
 		"build": "bunx --bun vite build",
-		"preview": "bun run build && bunx wrangler pages dev --port 5173",
+		"preview": "bun run build && wrangler dev --port 5173",
 		"prepare": "husky && bunx --bun svelte-kit sync || echo ''",
 		"check": "bunx --bun svelte-kit sync && bunx --bun svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "bunx --bun svelte-kit sync && bunx --bun svelte-check --tsconfig ./tsconfig.json --watch",
