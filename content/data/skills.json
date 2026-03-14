@@ -1,0 +1,212 @@
+[
+	{
+		"name": "HTML5",
+		"icon": "skill-icons:html",
+		"confidence": 5,
+		"order": 0
+	},
+	{
+		"name": "CSS3",
+		"icon": "skill-icons:css",
+		"confidence": 5,
+		"order": 1
+	},
+	{
+		"name": "JavaScript",
+		"icon": "skill-icons:javascript",
+		"confidence": 5,
+		"order": 2
+	},
+	{
+		"name": "TypeScript",
+		"icon": "skill-icons:typescript",
+		"confidence": 5,
+		"order": 3
+	},
+	{
+		"name": "Node.js",
+		"icon": "skill-icons:nodejs-dark",
+		"confidence": 4,
+		"order": 4
+	},
+	{
+		"name": "Bun",
+		"icon": "skill-icons:bun-dark",
+		"confidence": 4,
+		"order": 5
+	},
+	{
+		"name": "Svelte",
+		"icon": "skill-icons:svelte",
+		"confidence": 5,
+		"order": 6
+	},
+	{
+		"name": "Lit",
+		"icon": "skill-icons:lit-dark",
+		"confidence": 3,
+		"order": 7
+	},
+	{
+		"name": "Vue.js",
+		"icon": "skill-icons:vuejs-dark",
+		"confidence": 3,
+		"order": 8
+	},
+	{
+		"name": "Nuxt.js",
+		"icon": "skill-icons:nuxtjs-dark",
+		"confidence": 3,
+		"order": 9
+	},
+	{
+		"name": "Pug",
+		"icon": "skill-icons:pug-dark",
+		"confidence": 3,
+		"order": 10
+	},
+	{
+		"name": "Tailwind CSS",
+		"icon": "skill-icons:tailwindcss-dark",
+		"confidence": 4,
+		"order": 11
+	},
+	{
+		"name": "Elysia",
+		"icon": "skill-icons:elysia-dark",
+		"confidence": 4,
+		"order": 12
+	},
+	{
+		"name": "Hono",
+		"icon": "https://go-skill-icons.vercel.app/api/icons?i=hono&theme=dark",
+		"confidence": 3,
+		"order": 13
+	},
+	{
+		"name": "Python",
+		"icon": "skill-icons:python-dark",
+		"confidence": 5,
+		"order": 14
+	},
+	{
+		"name": "C",
+		"icon": "skill-icons:c",
+		"confidence": 4,
+		"order": 15
+	},
+	{
+		"name": "C++",
+		"icon": "skill-icons:cpp",
+		"confidence": 4,
+		"order": 16
+	},
+	{
+		"name": "C#",
+		"icon": "skill-icons:cs",
+		"confidence": 3,
+		"order": 17
+	},
+	{
+		"name": "Rust",
+		"icon": "skill-icons:rust",
+		"confidence": 3,
+		"order": 18
+	},
+	{
+		"name": "Tauri",
+		"icon": "skill-icons:tauri-dark",
+		"confidence": 2,
+		"order": 19
+	},
+	{
+		"name": "Android Studio",
+		"icon": "skill-icons:androidstudio-dark",
+		"confidence": 2,
+		"order": 20
+	},
+	{
+		"name": "Kotlin",
+		"icon": "skill-icons:kotlin-dark",
+		"confidence": 2,
+		"order": 21
+	},
+	{
+		"name": "Godot",
+		"icon": "skill-icons:godot-dark",
+		"confidence": 4,
+		"order": 22
+	},
+	{
+		"name": "Unity",
+		"icon": "skill-icons:unity-dark",
+		"confidence": 1,
+		"order": 23
+	},
+	{
+		"name": "Arduino",
+		"icon": "skill-icons:arduino",
+		"confidence": 4,
+		"order": 24
+	},
+	{
+		"name": "KiCad",
+		"icon": "simple-icons:kicad",
+		"confidence": 3,
+		"order": 25
+	},
+	{
+		"name": "Git",
+		"icon": "skill-icons:git",
+		"confidence": 2,
+		"order": 26
+	},
+	{
+		"name": "GitHub",
+		"icon": "skill-icons:github-dark",
+		"confidence": 3,
+		"order": 27
+	},
+	{
+		"name": "Docker",
+		"icon": "skill-icons:docker",
+		"confidence": 2,
+		"order": 28
+	},
+	{
+		"name": "Cloudflare",
+		"icon": "skill-icons:cloudflare-dark",
+		"confidence": 2,
+		"order": 29
+	},
+	{
+		"name": "Cloudflare Workers",
+		"icon": "skill-icons:workers-dark",
+		"confidence": 2,
+		"order": 30
+	},
+	{
+		"name": "Linux",
+		"icon": "skill-icons:linux-dark",
+		"confidence": 3,
+		"order": 31
+	},
+	{
+		"name": "LaTeX",
+		"icon": "skill-icons:latex-dark",
+		"confidence": 3,
+		"order": 32
+	},
+	{
+		"name": "Blender",
+		"icon": "skill-icons:blender-dark",
+		"confidence": 4,
+		"order": 33
+	},
+	{
+		"name": "AviUtl",
+		"icon": "/assets/AviUtl.svg",
+		"confidence": 5,
+		"order": 34
+	}
+]

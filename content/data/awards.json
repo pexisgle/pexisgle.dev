@@ -1,0 +1,26 @@
+[
+	{
+		"name": "2023/2024 JOI 本戦出場(B)",
+		"date": "2024-01",
+		"status": "Silver",
+		"order": 0
+	},
+	{
+		"name": "2024 SuperCon 本戦出場",
+		"date": "2024-08",
+		"status": "Silver",
+		"order": 1
+	},
+	{
+		"name": "2024/2025 JOI 本戦出場(B)",
+		"date": "2024-01",
+		"status": "Silver",
+		"order": 2
+	},
+	{
+		"name": "2025 SuperCon 本戦出場",
+		"date": "2025-08",
+		"status": "Silver",
+		"order": 3
+	}
+]

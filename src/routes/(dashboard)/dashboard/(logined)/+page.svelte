@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Button } from 'flowbite-svelte';
+	import { Card, Button, Spinner } from 'flowbite-svelte';
 	import {
 		GridSolid,
 		UsersGroupSolid,
@@ -11,12 +11,15 @@
 		LightbulbSolid,
 		ShareNodesSolid,
 		CogSolid,
-		DownloadSolid
+		UploadSolid
 	} from 'flowbite-svelte-icons';
 	import type { Component } from 'svelte';
-	import type { PageProps } from './$types';
+	import { toast } from '$lib/stores/toast';
+	import { menuItems } from '$lib/menu';
+	import { getToken } from '$lib/auth';
+	import { ghTriggerWorkflow } from '$lib/github';
 
-	let { data }: PageProps = $props();
+	let building = $state(false);
 
 	const iconMap: Record<string, Component> = {
 		GridSolid,
@@ -32,42 +35,26 @@
 	};
 
 	// Filter out the 'Dashboard' link itself and any items without description
-	// (though all should have description now)
 	let dashboardItems = $derived(
-		data.menu.filter((item) => item.label !== 'Dashboard' && item.description)
+		menuItems.filter((item) => item.label !== 'Dashboard' && item.description)
 	);
 
 	function getIcon(name: string) {
 		return iconMap[name] || GridSolid;
 	}
 
-	function isRoleOverAdmin(role: string): boolean {
-		const levels: Record<string, number> = {
-			none: 0,
-			user: 1,
-			admin: 2,
-			owner: 3
-		};
-		return (levels[role] ?? 0) >= 2;
-	}
-
-	async function handleExport() {
+	async function handleBuild() {
+		building = true;
 		try {
-			const res = await fetch('/dashboard/api/admin/export');
-			if (!res.ok) throw new Error('Failed to export data');
-
-			const blob = await res.blob();
-			const url = window.URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `pexisgle-backup-${new Date().toISOString()}.json`;
-			document.body.appendChild(a);
-			a.click();
-			window.URL.revokeObjectURL(url);
-			a.remove();
+			const token = getToken();
+			await ghTriggerWorkflow(token, 'deploy.yml');
+			toast.success(
+				'デプロイワークフローをトリガーしました。GitHub Actionsで進捗を確認してください。'
+			);
 		} catch (e) {
-			alert('Export failed. Please check console for details.');
-			console.error(e);
+			toast.error('デプロイに失敗しました: ' + e);
+		} finally {
+			building = false;
 		}
 	}
 </script>
@@ -80,12 +67,16 @@
 				Welcome back! Here's an overview of the system.
 			</p>
 		</div>
-		{#if isRoleOverAdmin(data.user.role)}
-			<Button color="alternative" class="gap-2" onclick={handleExport}>
-				<DownloadSolid class="h-5 w-5" />
-				Export All Data
+		<div class="flex flex-wrap gap-2">
+			<Button color="blue" class="gap-2" disabled={building} onclick={handleBuild}>
+				{#if building}
+					<Spinner size="4" />
+				{:else}
+					<UploadSolid class="h-5 w-5" />
+				{/if}
+				{building ? 'Building...' : 'Build & Deploy'}
 			</Button>
-		{/if}
+		</div>
 	</div>
 
 	<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

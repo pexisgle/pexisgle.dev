@@ -12,13 +12,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_ACCOUNT_ID: dummy_id
-      CLOUDFLARE_DATABASE_ID: dummy_db_id
-      CLOUDFLARE_D1_TOKEN: dummy_token
-      GITHUB_CLIENT_ID: dummy_client_id
-      GITHUB_CLIENT_SECRET: dummy_client_secret
-      BACKUP_API_KEY: dummy_key
-      APP_URL: http://localhost
+      GITHUB_CLIENT_ID: dummy_id
+      GITHUB_CLIENT_SECRET: dummy_secret
+      PUBLIC_GITHUB_OWNER: ${{ vars.GITHUB_OWNER }}
+      PUBLIC_GITHUB_REPO: ${{ vars.GITHUB_REPO }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

@@ -1,22 +1,16 @@
-import { generateDB } from '$lib/server/db';
-import { blog } from '$lib/server/db/schema';
-import type { PageServerLoad } from './$types';
+import { getBlogPosts, getBlogPost } from '$lib/content';
+import type { PageServerLoad, EntryGenerator } from './$types';
 import { error } from '@sveltejs/kit';
-import { eq, and } from 'drizzle-orm';
-import { requireDatabaseForLoad } from '$lib/server/platform';
 
-export const load: PageServerLoad = async ({ params, platform }) => {
-	const d1 = requireDatabaseForLoad(platform);
-	const db = generateDB(d1);
+export const entries: EntryGenerator = async () => {
+	const posts = await getBlogPosts();
+	return posts.map((p) => ({ id: p.id }));
+};
 
-	const blogPost = (
-		await db
-			.select()
-			.from(blog)
-			.where(and(eq(blog.id, params.id), eq(blog.published, true)))
-	).at(0);
+export const load: PageServerLoad = async ({ params }) => {
+	const blogPost = await getBlogPost(params.id);
 
-	if (!blogPost) {
+	if (!blogPost || !blogPost.published) {
 		return error(404, 'Post not found');
 	}
 

@@ -16,7 +16,7 @@
 		images: work.thumbnail
 			? [
 					{
-						url: `https://pexisgle.pages.dev/api/image/${work.thumbnail}`,
+						url: work.thumbnail,
 						alt: work.title
 					}
 				]
@@ -31,7 +31,7 @@
 				<a href="/works" class="back-button">Back to Works</a>
 			</div>
 			{#if work.thumbnail}
-				<img src="/api/image/{work.thumbnail}" alt={work.title} class="thumbnail" />
+				<img src={work.thumbnail} alt={work.title} class="thumbnail" />
 			{/if}
 
 			<div class="meta">

@@ -61,15 +61,3 @@
 		</SidebarItem>
 	{/each}
 </SidebarGroup>
-<SidebarGroup>
-	<SidebarItem
-		label="Settings"
-		href="/dashboard/settings"
-		active={$page.url.pathname.startsWith('/dashboard/settings')}
-		{onclick}
-	>
-		{#snippet icon()}
-			<CogSolid class={iconClass} />
-		{/snippet}
-	</SidebarItem>
-</SidebarGroup>

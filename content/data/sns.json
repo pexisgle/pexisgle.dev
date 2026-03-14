@@ -1,0 +1,23 @@
+[
+	{
+		"name": "GitHub",
+		"icon": "simple-icons:github",
+		"url": "https://github.com/pexisgle",
+		"color": "#24292E",
+		"order": 0
+	},
+	{
+		"name": "X",
+		"icon": "simple-icons:x",
+		"url": "https://twitter.com/pexisgle",
+		"color": "#1DA1F2",
+		"order": 1
+	},
+	{
+		"name": "youtube",
+		"icon": "simple-icons:youtube",
+		"url": "https://youtube.com/@pexisgle",
+		"color": "#FF0000",
+		"order": 2
+	}
+]

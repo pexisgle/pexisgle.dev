@@ -1,1 +1,0 @@
-ALTER TABLE `work` ADD `article` text;

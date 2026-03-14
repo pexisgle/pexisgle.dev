@@ -1,1 +1,0 @@
-ALTER TABLE `user` ADD `display_user_name` text;

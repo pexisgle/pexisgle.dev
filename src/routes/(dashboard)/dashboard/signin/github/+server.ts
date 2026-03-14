@@ -6,7 +6,7 @@ import type { RequestEvent } from './$types';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const state = generateState();
-	const url = github.createAuthorizationURL(state, ['user:email']);
+	const url = github.createAuthorizationURL(state, ['repo']);
 
 	event.cookies.set('github_oauth_state', state, {
 		path: '/',

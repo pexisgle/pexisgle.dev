@@ -1,1 +1,0 @@
-ALTER TABLE `work` ADD `creation_period` text;

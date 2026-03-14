@@ -34,7 +34,7 @@
 			<div class="work" animate:flip={{ duration: 400 }} transition:fade>
 				<a href={`/works/${work.id}`} class="work-link">
 					{#if work.thumbnail}
-						<img src="/api/image/{work.thumbnail}" alt={work.title} class="thumbnail" />
+						<img src={work.thumbnail} alt={work.title} class="thumbnail" />
 					{:else}
 						<div class="thumbnail placeholder">
 							<span>No Image</span>

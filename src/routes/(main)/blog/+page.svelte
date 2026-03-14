@@ -14,7 +14,7 @@
 			<div class="post">
 				<a href={`/blog/${post.id}`} class="post-link">
 					{#if post.thumbnail}
-						<img src="/api/image/{post.thumbnail}" alt={post.title} class="thumbnail" />
+						<img src={post.thumbnail} alt={post.title} class="thumbnail" />
 					{:else}
 						<div class="thumbnail placeholder">
 							<span>No Image</span>

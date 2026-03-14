@@ -16,7 +16,7 @@
 		images: post.thumbnail
 			? [
 					{
-						url: `https://pexisgle.pages.dev/api/image/${post.thumbnail}`,
+						url: `https://pexisgle.dev/images/${post.thumbnail}`,
 						alt: post.title
 					}
 				]
@@ -39,7 +39,7 @@
 			</div>
 
 			{#if post.thumbnail}
-				<img src="/api/image/{post.thumbnail}" alt={post.title} class="thumbnail" />
+				<img src={post.thumbnail} alt={post.title} class="thumbnail" />
 			{/if}
 		</div>
 
@@ -57,6 +57,9 @@
     margin: 0 auto
     padding: 2em 2em 4em
     min-height: 100vh
+
+.article-content
+    text-align: left
 
 .header-section
     display: flex

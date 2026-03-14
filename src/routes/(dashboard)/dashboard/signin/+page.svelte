@@ -1,6 +1,13 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { Card, Button } from 'flowbite-svelte';
 	import { GithubSolid } from 'flowbite-svelte-icons';
+	import { getToken } from '$lib/auth';
+
+	onMount(() => {
+		if (getToken()) goto('/dashboard');
+	});
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">

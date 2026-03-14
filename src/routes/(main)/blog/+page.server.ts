@@ -1,18 +1,7 @@
-import { generateDB } from '$lib/server/db';
-import { blog } from '$lib/server/db/schema';
+import { getBlogPosts } from '$lib/content';
 import type { PageServerLoad } from './$types';
-import { eq, desc } from 'drizzle-orm';
-import { requireDatabaseForLoad } from '$lib/server/platform';
 
-export const load: PageServerLoad = async ({ platform }) => {
-	const d1 = requireDatabaseForLoad(platform);
-	const db = generateDB(d1);
-	// Only fetch published blogs
-	const blogs = await db
-		.select()
-		.from(blog)
-		.where(eq(blog.published, true))
-		.orderBy(desc(blog.createdAt));
-
+export const load: PageServerLoad = async () => {
+	const blogs = (await getBlogPosts()).filter((b) => b.published);
 	return { blogs };
 };

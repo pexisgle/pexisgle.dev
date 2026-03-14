@@ -20,11 +20,6 @@
 	<div class="container">
 		<h1 in:fly={{ y: -20, duration: 800, delay: 200 }}>Contact</h1>
 
-		<p class="description" in:fly={{ y: 20, duration: 800, delay: 400 }}>
-			I'm always open to discussing new projects, creative ideas<br />or opportunities to be part of
-			your visions.
-		</p>
-
 		<div class="glass-links" in:fly={{ y: 30, duration: 800, delay: 600 }}>
 			<a
 				href="https://github.com/pexisgle"
