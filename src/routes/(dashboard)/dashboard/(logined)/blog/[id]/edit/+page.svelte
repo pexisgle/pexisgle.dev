@@ -166,7 +166,7 @@
 						{#if existingThumbnail}
 							<div class="mb-2">
 								<img
-									src="/images/{existingThumbnail}"
+									src={existingThumbnail}
 									alt="Current Thumbnail"
 									class="h-auto max-h-37.5 max-w-full rounded border border-gray-200 dark:border-gray-600"
 								/>

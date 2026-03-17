@@ -177,7 +177,7 @@
 						<TableBodyCell class="w-20 p-2">
 							{#if work.data.thumbnail}
 								<img
-									src="/images/{work.data.thumbnail}"
+									src={work.data.thumbnail}
 									alt={work.data.title}
 									class="h-12 w-16 rounded object-cover"
 								/>

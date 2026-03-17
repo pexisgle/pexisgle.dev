@@ -36,6 +36,19 @@
 		updatedAt: string;
 	};
 
+	function normalizeAwards(raw: Partial<Award>[]): Award[] {
+		const now = new Date().toISOString();
+		return raw.map((item, index) => ({
+			id: typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID(),
+			name: typeof item.name === 'string' ? item.name : '',
+			date: typeof item.date === 'string' ? item.date : null,
+			status: typeof item.status === 'string' ? item.status : null,
+			order: typeof item.order === 'number' ? item.order : index,
+			createdAt: typeof item.createdAt === 'string' ? item.createdAt : now,
+			updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : now
+		}));
+	}
+
 	// ── Core state ────────────────────────────────────────────────────────────
 	let items = $state<Award[]>([]);
 	let currentSha = $state<string | null>(null);
@@ -66,7 +79,7 @@
 		try {
 			const token = getToken();
 			const { data, sha } = await ghReadJsonData<Award[]>(token, 'awards.json', []);
-			items = data;
+			items = normalizeAwards(data);
 			currentSha = sha;
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : 'データの読み込みに失敗しました');
@@ -78,7 +91,7 @@
 	async function refreshData() {
 		const token = getToken();
 		const { data, sha } = await ghReadJsonData<Award[]>(token, 'awards.json', []);
-		items = data;
+		items = normalizeAwards(data);
 		currentSha = sha;
 	}
 

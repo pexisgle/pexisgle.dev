@@ -20,7 +20,7 @@
 	let controls: OrbitControls | undefined;
 	let animationId: number | undefined;
 	let mixer: THREE.AnimationMixer | undefined;
-	let clock: THREE.Clock;
+	let timer: THREE.Timer;
 
 	onMount(() => {
 		init();
@@ -81,8 +81,8 @@
 		directionalLight2.position.set(-5, 3, -5);
 		scene.add(directionalLight2);
 
-		// Clock for animations
-		clock = new THREE.Clock();
+		// Timer for animations
+		timer = new THREE.Timer();
 
 		// Load model
 		loadModel();
@@ -223,7 +223,7 @@
 
 		animationId = requestAnimationFrame(animate);
 
-		const delta = clock.getDelta();
+		const delta = timer.getDelta();
 
 		// Update animation mixer
 		if (mixer) {
@@ -290,7 +290,7 @@
 	border-radius: 0.5rem
 	overflow: hidden
 	position: relative
-	
+
 	:global(canvas)
 		display: block
 		width: 100%

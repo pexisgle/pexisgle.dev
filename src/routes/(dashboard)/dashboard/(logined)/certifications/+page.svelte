@@ -36,6 +36,19 @@
 		updatedAt: string;
 	};
 
+	function normalizeCertifications(raw: Partial<Certification>[]): Certification[] {
+		const now = new Date().toISOString();
+		return raw.map((item, index) => ({
+			id: typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID(),
+			name: typeof item.name === 'string' ? item.name : '',
+			date: typeof item.date === 'string' ? item.date : null,
+			status: typeof item.status === 'string' ? item.status : null,
+			order: typeof item.order === 'number' ? item.order : index,
+			createdAt: typeof item.createdAt === 'string' ? item.createdAt : now,
+			updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : now
+		}));
+	}
+
 	// ── Core state ────────────────────────────────────────────────────────────
 	let items = $state<Certification[]>([]);
 	let currentSha = $state<string | null>(null);
@@ -68,7 +81,7 @@
 		try {
 			const token = getToken();
 			const { data, sha } = await ghReadJsonData<Certification[]>(token, 'certifications.json', []);
-			items = data;
+			items = normalizeCertifications(data);
 			currentSha = sha;
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : 'データの読み込みに失敗しました');
@@ -80,7 +93,7 @@
 	async function refreshData() {
 		const token = getToken();
 		const { data, sha } = await ghReadJsonData<Certification[]>(token, 'certifications.json', []);
-		items = data;
+		items = normalizeCertifications(data);
 		currentSha = sha;
 	}
 
@@ -264,17 +277,8 @@
 			const imported = JSON.parse(text);
 			if (!Array.isArray(imported)) throw new Error('Invalid format: expected an array');
 			const token = getToken();
-			const now = new Date().toISOString();
-			const newItems: Certification[] = (imported as Record<string, unknown>[]).map(
-				(item, index) => ({
-					id: typeof item.id === 'string' ? item.id : crypto.randomUUID(),
-					name: typeof item.name === 'string' ? item.name : '',
-					date: typeof item.date === 'string' ? item.date : null,
-					status: typeof item.status === 'string' ? item.status : null,
-					order: typeof item.order === 'number' ? item.order : index,
-					createdAt: typeof item.createdAt === 'string' ? item.createdAt : now,
-					updatedAt: now
-				})
+			const newItems: Certification[] = normalizeCertifications(
+				imported as Record<string, unknown>[]
 			);
 			await ghWriteJsonData(
 				token,

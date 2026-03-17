@@ -163,7 +163,7 @@
 						<TableBodyCell class="w-20 p-2">
 							{#if blog.data.thumbnail}
 								<img
-									src={`/images/${blog.data.thumbnail}`}
+									src={blog.data.thumbnail}
 									alt={blog.data.title}
 									class="h-12 w-16 rounded object-cover"
 								/>

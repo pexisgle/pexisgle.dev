@@ -16,7 +16,7 @@
 		images: post.thumbnail
 			? [
 					{
-						url: `https://pexisgle.dev/images/${post.thumbnail}`,
+						url: post.thumbnail,
 						alt: post.title
 					}
 				]
@@ -82,7 +82,7 @@
             font-size: 3em
             margin: 0
             line-height: 1.2
-        
+
         .date
             font-style: italic
             opacity: 0.6

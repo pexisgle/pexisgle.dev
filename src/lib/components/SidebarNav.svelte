@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { SidebarGroup, SidebarItem } from 'flowbite-svelte';
 	import {
 		GridSolid,
@@ -51,8 +51,8 @@
 			label={item.label}
 			href={item.href}
 			active={item.exact
-				? $page.url.pathname === item.href
-				: $page.url.pathname.startsWith(item.href)}
+				? page.url.pathname === item.href
+				: page.url.pathname.startsWith(item.href)}
 			{onclick}
 		>
 			{#snippet icon()}

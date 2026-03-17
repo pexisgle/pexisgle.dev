@@ -245,7 +245,7 @@
 						{#if currentThumbnail}
 							<div class="mt-2 mb-2">
 								<img
-									src="/images/{currentThumbnail}"
+									src={currentThumbnail}
 									alt="Current thumbnail"
 									class="h-auto max-h-37.5 max-w-full rounded border border-gray-200 dark:border-gray-600"
 								/>

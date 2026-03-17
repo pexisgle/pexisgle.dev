@@ -32,6 +32,16 @@
 		order: number;
 	};
 
+	function normalizeSkills(raw: Partial<Skill>[]): Skill[] {
+		return raw.map((item, index) => ({
+			id: typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID(),
+			name: typeof item.name === 'string' ? item.name : '',
+			icon: typeof item.icon === 'string' ? item.icon : '',
+			confidence: typeof item.confidence === 'number' ? item.confidence : 0,
+			order: typeof item.order === 'number' ? item.order : index
+		}));
+	}
+
 	// Data state
 	let items = $state<Skill[]>([]);
 	let loading = $state(true);
@@ -60,8 +70,8 @@
 		try {
 			const token = getToken();
 			const { data } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
-			items = data;
-			formOrder = data.length > 0 ? Math.max(...data.map((s) => s.order), -1) + 1 : 0;
+			items = normalizeSkills(data);
+			formOrder = items.length > 0 ? Math.max(...items.map((s) => s.order), -1) + 1 : 0;
 		} catch (e) {
 			toast.error('データの読み込みに失敗しました: ' + e);
 		} finally {
@@ -116,7 +126,7 @@
 			};
 			const updated = [...data, newItem];
 			await ghWriteJsonData(token, 'skills.json', updated, sha, `create skill: ${newItem.name}`);
-			items = updated;
+			items = normalizeSkills(updated);
 			toast.success('スキルを作成しました');
 			startCreate();
 		} catch (e) {
@@ -144,7 +154,7 @@
 					: s
 			);
 			await ghWriteJsonData(token, 'skills.json', updated, sha, `update skill: ${formName}`);
-			items = updated;
+			items = normalizeSkills(updated);
 			toast.success('スキルを更新しました');
 			startCreate();
 		} catch (e) {
@@ -168,7 +178,7 @@
 				sha,
 				`delete skill: ${deleted?.name ?? id}`
 			);
-			items = updated;
+			items = normalizeSkills(updated);
 			if (editingId === id) startCreate();
 			toast.success('スキルを削除しました');
 		} catch (e) {
@@ -183,10 +193,12 @@
 		try {
 			const token = getToken();
 			const { data, sha } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
-			const reordered = localSkills.map((item, index) => {
-				const original = data.find((s) => s.id === item.id);
-				return original ? { ...original, order: index } : { ...item, order: index };
-			});
+			const reordered = normalizeSkills(
+				localSkills.map((item, index) => {
+					const original = data.find((s) => s.id === item.id);
+					return original ? { ...original, order: index } : { ...item, order: index };
+				})
+			);
 			await ghWriteJsonData(token, 'skills.json', reordered, sha, 'reorder skills');
 			items = reordered;
 			isReordering = false;
@@ -208,11 +220,13 @@
 			if (!Array.isArray(parsed)) throw new Error('Invalid format: expected an array');
 			const token = getToken();
 			const { sha } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
-			const withIds = parsed.map((item, index) => ({
-				...item,
-				id: item.id ?? crypto.randomUUID(),
-				order: item.order ?? index
-			}));
+			const withIds = normalizeSkills(
+				parsed.map((item, index) => ({
+					...item,
+					id: item.id ?? crypto.randomUUID(),
+					order: item.order ?? index
+				}))
+			);
 			await ghWriteJsonData(token, 'skills.json', withIds, sha, 'import skills');
 			items = withIds;
 			importModalOpen = false;
