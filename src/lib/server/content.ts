@@ -7,7 +7,8 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import matter from 'gray-matter';
-import type { WorkType } from './types/work';
+import typia from 'typia';
+import type { WorkType } from '$lib/types/work';
 
 const CONTENT_DIR = 'content';
 
@@ -144,15 +145,15 @@ export async function getWorks(): Promise<Work[]> {
 	} catch {
 		return [];
 	}
-	const jsonFiles = files.filter((f) => f.endsWith('.json'));
-	const works = await Promise.all(jsonFiles.map((f) => parseWorkFile(join(dir, f))));
+	const mdFiles = files.filter((f) => f.endsWith('.md'));
+	const works = await Promise.all(mdFiles.map((f) => parseWorkFile(join(dir, f))));
 	return works
 		.filter((w) => w !== null)
 		.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export async function getWork(id: string): Promise<Work | null> {
-	return parseWorkFile(join(CONTENT_DIR, 'works', `${id}.json`));
+	return parseWorkFile(join(CONTENT_DIR, 'works', `${id}.md`));
 }
 
 async function parseWorkFile(filePath: string): Promise<Work | null> {
@@ -163,19 +164,26 @@ async function parseWorkFile(filePath: string): Promise<Work | null> {
 		return null;
 	}
 	try {
-		const parsed = JSON.parse(raw) as Omit<Work, 'id'> & Partial<Work>;
-		const id = basename(filePath, '.json');
+		const { data, content } = matter(raw);
+		if (!data.title) return null;
+		const id = basename(filePath, '.md');
 		return {
 			id: String(id),
-			title: String(parsed.title),
-			description: parsed.description ?? null,
-			thumbnail: parsed.thumbnail ?? null,
-			type: parsed.type as WorkType,
-			creationPeriod: parsed.creationPeriod ?? null,
-			article: parsed.article ?? null,
-			createdAt: String(parsed.createdAt ?? new Date().toISOString()),
-			updatedAt: String(parsed.updatedAt ?? new Date().toISOString()),
-			urls: parsed.urls ?? []
+			title: String(data.title),
+			description: data.description ? String(data.description) : null,
+			thumbnail: data.thumbnail ? String(data.thumbnail) : null,
+			type: data.type as WorkType,
+			creationPeriod: data.creationPeriod ? String(data.creationPeriod) : null,
+			article: content.trim() || null,
+			createdAt: String(data.createdAt ?? new Date().toISOString()),
+			updatedAt: String(data.updatedAt ?? new Date().toISOString()),
+			urls: Array.isArray(data.urls)
+				? data.urls.map((u: WorkUrl) => ({
+						id: String(u.id),
+						title: String(u.title),
+						url: String(u.url)
+					}))
+				: []
 		};
 	} catch {
 		return null;
@@ -193,7 +201,10 @@ async function readDataFile<T>(filename: string): Promise<T[]> {
 		return [];
 	}
 	try {
-		return JSON.parse(raw) as T[];
+		const parsed = JSON.parse(raw);
+		const validation = typia.validate<T[]>(parsed);
+		if (!validation.success) return [];
+		return validation.data;
 	} catch {
 		return [];
 	}

@@ -3,7 +3,7 @@
 	import './layout.sass';
 	import 'highlight.js/styles/github-dark.min.css';
 	import { setupViewTransition } from '$lib/utils/view-transition';
-	import MenuBar from '$lib/components/MenuBar.svelte';
+	import MenuBar from '$lib/components/main/MenuBar.svelte';
 	import { onMount, onDestroy } from 'svelte';
 	import gsap from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';

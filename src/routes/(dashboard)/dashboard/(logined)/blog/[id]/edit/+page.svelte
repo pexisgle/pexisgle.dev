@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import {
 		Toggle,
 		Label,
@@ -14,14 +14,14 @@
 		Heading,
 		Spinner
 	} from 'flowbite-svelte';
-	import CartaEditor from '$lib/components/CartaEditor.svelte';
-	import { getToken } from '$lib/auth';
+	import CartaEditor from '$lib/components/dashboard/CartaEditor.svelte';
 	import { ghGetBlog, ghPutFile, ghDeleteFile, ghUploadImage, serializeBlog } from '$lib/github';
+
+	let { data } = $props();
 	import type { BlogFileData } from '$lib/github';
 	import { toast } from '$lib/stores/toast';
-	import { v4 as uuidv4 } from 'uuid';
 
-	const originalId = $page.params.id ?? '';
+	const originalId = page.params.id ?? '';
 
 	let loading = $state(true);
 	let notFound = $state(false);
@@ -38,8 +38,7 @@
 	let createdAt = $state('');
 
 	onMount(async () => {
-		const token = getToken();
-		const result = await ghGetBlog(token, originalId);
+		const result = await ghGetBlog(data.token, originalId);
 		if (!result) {
 			notFound = true;
 			loading = false;
@@ -64,7 +63,6 @@
 		}
 		submitting = true;
 		try {
-			const token = getToken();
 			const now = new Date().toISOString();
 			const newId = id.trim() || originalId;
 			const idChanged = newId !== originalId;
@@ -72,7 +70,7 @@
 			let thumbnailFilename: string | undefined = existingThumbnail ?? undefined;
 			if (thumbnailFile) {
 				const buffer = await thumbnailFile.arrayBuffer();
-				thumbnailFilename = await ghUploadImage(token, uuidv4(), buffer);
+				thumbnailFilename = await ghUploadImage(data.token, crypto.randomUUID(), buffer);
 			}
 
 			const blogData: BlogFileData = {
@@ -91,7 +89,7 @@
 			// When the id changes we create a brand-new file (no sha); when updating
 			// in place we pass the existing sha so GitHub can do a conflict check.
 			await ghPutFile(
-				token,
+				data.token,
 				newPath,
 				serializeBlog(blogData),
 				`${idChanged ? 'create' : 'update'} blog: ${newId}`,
@@ -100,7 +98,7 @@
 
 			if (idChanged) {
 				await ghDeleteFile(
-					token,
+					data.token,
 					`content/blog/${originalId}.md`,
 					originalSha,
 					`delete blog: ${originalId}`

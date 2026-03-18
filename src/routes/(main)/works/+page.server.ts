@@ -1,4 +1,4 @@
-import { getWorks } from '$lib/content';
+import { getWorks } from '$lib/server/content';
 import { work_types } from '$lib/types/work';
 import type { PageServerLoad } from './$types';
 

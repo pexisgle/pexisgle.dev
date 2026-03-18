@@ -1,4 +1,4 @@
-import { getBlogPosts, getBlogPost } from '$lib/content';
+import { getBlogPosts, getBlogPost } from '$lib/server/content';
 import type { PageServerLoad, EntryGenerator } from './$types';
 import { error } from '@sveltejs/kit';
 

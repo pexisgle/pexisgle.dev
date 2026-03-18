@@ -1,19 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { SidebarGroup, SidebarItem } from 'flowbite-svelte';
-	import {
-		GridSolid,
-		UsersGroupSolid,
-		ImageSolid,
-		BriefcaseSolid,
-		NewspaperSolid,
-		AwardSolid,
-		BadgeCheckSolid,
-		LightbulbSolid,
-		ShareNodesSolid,
-		CogSolid
-	} from 'flowbite-svelte-icons';
-	import type { Component } from 'svelte';
+	import { GridSolid } from 'flowbite-svelte-icons';
+	import { iconMap } from '$lib/menu';
 
 	interface Props {
 		onclick?: () => void;
@@ -26,19 +15,6 @@
 	}
 
 	let { onclick, items = [] }: Props = $props();
-
-	const iconMap: Record<string, Component> = {
-		GridSolid,
-		UsersGroupSolid,
-		ImageSolid,
-		BriefcaseSolid,
-		NewspaperSolid,
-		AwardSolid,
-		BadgeCheckSolid,
-		LightbulbSolid,
-		ShareNodesSolid,
-		CogSolid
-	};
 
 	const iconClass =
 		'h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white';

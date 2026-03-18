@@ -1,4 +1,4 @@
-import { getSNS, getSkills, getCertifications, getAwards } from '$lib/content';
+import { getSNS, getSkills, getCertifications, getAwards } from '$lib/server/content';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

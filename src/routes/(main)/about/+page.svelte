@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import FBXViewer from '$lib/components/FBXViewer.svelte';
+	import ModelViewer from '$lib/components/main/ModelViewer.svelte';
 	import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
 </script>
@@ -15,7 +15,7 @@
 				width="200"
 			/>
 		</figure>
-		<p class="affiliation">Science Tokyo High School 科学技術科 情報分野 3年</p>
+		<p class="affiliation">UEC26 Ⅰ類メディア情報</p>
 		<div class="sns">
 			{#each data.sns as sns (sns.name)}
 				<a
@@ -63,7 +63,7 @@
 				3D Model
 			</h2>
 			<div class="model-container">
-				<FBXViewer src="/assets/pexisgle.glb" />
+				<ModelViewer src="/assets/pexisgle.glb" />
 			</div>
 		</div>
 		<div class="card certification-card">
@@ -143,7 +143,7 @@
 .bg
     display: flex
     gap: $gap-lg
-    
+
     @include respond-to('md', 'max')
         flex-direction: column
 
@@ -152,10 +152,10 @@
     height: fit-content
     @include glass-card(2rem, $radius-lg)
     overflow: visible
-    
+
     @include respond-to('md', 'max')
         width: 100%
-    
+
     h1
         margin-bottom: 1rem
     figure
@@ -189,7 +189,7 @@
     &.skil-card
         text-align: left
         width: 100%
-        
+
         h2
             @include icon-text
             color: #9b59b6
@@ -198,12 +198,12 @@
     &.model-card
         text-align: left
         width: 100%
-        
+
         h2
             @include icon-text
             color: #3498db
             text-shadow: 0 2px 10px rgba(52, 152, 219, 0.3)
-        
+
         .model-container
             width: 100%
             border-radius: $radius-md
@@ -226,20 +226,20 @@
             display: flex
             align-items: center
             justify-content: center
-            
+
             :global(svg), img
                 width: 100%
                 height: 100%
                 transition: $transition-transform
             img
                 border-radius: $radius-sm
-            
+
             &:hover
                 z-index: 10
-                
+
                 :global(svg)
                     filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.3))
-                
+
                 &::before
                     background: rgba(0,0,0, 0.85)
                     left: -10px
@@ -248,18 +248,18 @@
                     width: 200px
                     height: 70px
                     transition: all 0.3s var(--ease-out)
-                
+
                 .skil-tooltip
                     opacity: 1
                     visibility: visible
-            
+
             &::before
                 content: ''
                 position: absolute
                 top: 0
                 left: 0
                 width: 50px
-                height: 50px                
+                height: 50px
                 background: rgba(0,0,0, 0.85)
                 border: 1px solid rgba(255, 255, 255, 0.2)
                 border-radius: $radius-md
@@ -267,7 +267,7 @@
                 transition: all 0.3s var(--ease-in)
                 z-index: -1
                 backdrop-filter: blur(5px)
-            
+
             .skil-tooltip
                 position: absolute
                 width: 70px
@@ -285,13 +285,13 @@
                 flex-direction: column
                 align-items: flex-start
                 justify-content: center
-                
+
                 .skil-name
                     font-weight: bold
                     font-size: 0.8rem
                     margin-bottom: 0.2rem
                     text-align: left
-                
+
                 .skil-confidence
                     font-size: 0.7rem
                     letter-spacing: 0.1em
@@ -299,37 +299,37 @@
         .sections-wrapper
             display: flex
             gap: 1.5rem
-            
+
             @include respond-to('md', 'max')
                 flex-direction: column
-            
+
             .section
                 flex: 1
                 min-width: 0
-                
+
                 @include respond-to('md', 'max')
                     margin-bottom: 1rem
-                
+
                 h2
                     @include icon-text(0.4rem)
                     color: #4a90e2
                     text-shadow: 0 2px 10px rgba(74, 144, 226, 0.3)
                     margin-bottom: 0.75rem
                     font-size: 1.3rem
-                    
+
                     :global(svg)
                         width: 24px
                         height: 24px
-                    
+
                     &:has(+ .items .cert-item.award)
                         color: #ffd700
                         text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3)
-                
+
                 .items
                     display: flex
                     flex-direction: column
                     gap: 0.3rem
-            
+
             .cert-item
                 display: flex
                 align-items: center
@@ -342,7 +342,7 @@
                 position: relative
                 overflow: hidden
                 cursor: pointer
-                
+
                 &::before
                     content: ''
                     position: absolute
@@ -352,22 +352,22 @@
                     height: 100%
                     background: linear-gradient(180deg, #4a90e2 0%, #357abd 100%)
                     transition: width 0.3s ease
-                
+
                 &.award::before
                     background: linear-gradient(180deg, #ffd700 0%, #ffed4e 100%)
-                
+
                 &:hover
                     transform: translateX(6px)
                     background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%)
                     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2)
                     border-color: rgba(255, 255, 255, 0.3)
-                    
+
                     &::before
                         width: 4px
-                    
+
                     .cert-icon
                         transform: scale(1.1) rotate(5deg)
-                
+
                 .cert-icon
                     flex-shrink: 0
                     width: 36px
@@ -380,72 +380,72 @@
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
                     color: #4a90e2
                     box-shadow: 0 3px 8px rgba(74, 144, 226, 0.2)
-                    
+
                     :global(svg)
                         width: 20px
                         height: 20px
-                
+
                 &.award .cert-icon
                     background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 237, 78, 0.3) 100%)
                     color: #ffd700
                     box-shadow: 0 3px 8px rgba(255, 215, 0, 0.3)
-                
+
                 .cert-content
                     flex: 1
                     display: flex
                     flex-direction: column
                     gap: 0.1rem
-                    
+
                     .cert-name
                         font-weight: 600
                         font-size: 0.9rem
                         color: #fff
                         line-height: 1.3
-                    
+
                     .cert-date
                         font-size: 0.75rem
                         color: rgba(255, 255, 255, 0.6)
                         font-style: italic
-                
+
                 // Gold status
                 &.gold
                     &::before
                         background: linear-gradient(180deg, #ffd700 0%, #ffed4e 100%)
-                    
+
                     .cert-icon
                         background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 237, 78, 0.3) 100%)
                         color: #ffd700
                         box-shadow: 0 3px 8px rgba(255, 215, 0, 0.3)
-                
+
                 // Silver status
                 &.silver
                     &::before
                         background: linear-gradient(180deg, #c0c0c0 0%, #e8e8e8 100%)
-                    
+
                     .cert-icon
                         background: linear-gradient(135deg, rgba(192, 192, 192, 0.3) 0%, rgba(232, 232, 232, 0.3) 100%)
                         color: #c0c0c0
                         box-shadow: 0 3px 8px rgba(192, 192, 192, 0.3)
-                
+
                 // Bronze status
                 &.bronze
                     &::before
                         background: linear-gradient(180deg, #cd7f32 0%, #e8a85f 100%)
-                    
+
                     .cert-icon
                         background: linear-gradient(135deg, rgba(205, 127, 50, 0.3) 0%, rgba(232, 168, 95, 0.3) 100%)
                         color: #cd7f32
                         box-shadow: 0 3px 8px rgba(205, 127, 50, 0.3)
-            
+
             .empty-message
                 padding: 2rem 1rem
                 text-align: center
-                
+
                 .empty-text
                     color: rgba(255, 255, 255, 0.5)
                     font-size: 1rem
                     font-style: italic
-                    
+
 .content
     overflow: visible
     width: 100%

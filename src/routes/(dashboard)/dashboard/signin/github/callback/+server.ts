@@ -1,5 +1,6 @@
 import { github } from '$lib/server/auth';
 import { PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO } from '$env/static/public';
+import { checkRepoAccess } from '$lib/auth';
 import type { RequestEvent } from './$types';
 import type { OAuth2Tokens } from 'arctic';
 
@@ -22,22 +23,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const accessToken = tokens.accessToken();
 
 	// Verify the account has push access to the configured repository.
-	const repoRes = await fetch(
-		`https://api.github.com/repos/${PUBLIC_GITHUB_OWNER}/${PUBLIC_GITHUB_REPO}`,
-		{
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				'User-Agent': 'pexisgle-dashboard'
-			}
-		}
-	);
-
-	if (!repoRes.ok) {
-		return new Response('Repository not accessible', { status: 403 });
-	}
-
-	const repoData = (await repoRes.json()) as { permissions?: { push?: boolean } };
-	if (!repoData.permissions?.push) {
+	if (!(await checkRepoAccess(accessToken, PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO))) {
 		return new Response('Write access to repository is required', { status: 403 });
 	}
 

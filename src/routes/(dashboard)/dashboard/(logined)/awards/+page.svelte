@@ -14,17 +14,14 @@
 		Fileupload,
 		Spinner
 	} from 'flowbite-svelte';
-	import {
-		EditOutline,
-		TrashBinOutline,
-		DownloadOutline,
-		UploadOutline
-	} from 'flowbite-svelte-icons';
+	import { EditOutline, TrashBinOutline, UploadOutline } from 'flowbite-svelte-icons';
 	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
-	import { getToken } from '$lib/auth';
 	import { ghReadJsonData, ghWriteJsonData } from '$lib/github';
 	import { toast } from '$lib/stores/toast';
+	import typia from 'typia';
+
+	let { data } = $props();
 
 	type Award = {
 		id: string;
@@ -77,9 +74,9 @@
 	// ── Data loading ──────────────────────────────────────────────────────────
 	onMount(async () => {
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<Award[]>(token, 'awards.json', []);
-			items = normalizeAwards(data);
+			const token = data.token;
+			const { data: award_data, sha } = await ghReadJsonData<Award[]>(token, 'awards.json', []);
+			items = normalizeAwards(award_data);
 			currentSha = sha;
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : 'データの読み込みに失敗しました');
@@ -89,9 +86,9 @@
 	});
 
 	async function refreshData() {
-		const token = getToken();
-		const { data, sha } = await ghReadJsonData<Award[]>(token, 'awards.json', []);
-		items = normalizeAwards(data);
+		const token = data.token;
+		const { data: award_data, sha } = await ghReadJsonData<Award[]>(token, 'awards.json', []);
+		items = normalizeAwards(award_data);
 		currentSha = sha;
 	}
 
@@ -128,7 +125,7 @@
 		nameError = '';
 		saving = true;
 		try {
-			const token = getToken();
+			const token = data.token;
 			const now = new Date().toISOString();
 			if (editingId === null) {
 				const newItem: Award = {
@@ -188,7 +185,7 @@
 	async function handleDelete(id: string) {
 		saving = true;
 		try {
-			const token = getToken();
+			const token = data.token;
 			const newItems = items.filter((item) => item.id !== id);
 			await ghWriteJsonData(token, 'awards.json', newItems, currentSha, `delete award: ${id}`);
 			await refreshData();
@@ -217,7 +214,7 @@
 	async function saveReorder() {
 		saving = true;
 		try {
-			const token = getToken();
+			const token = data.token;
 			const newItems = localAwards.map((item, index) => ({ ...item, order: index }));
 			await ghWriteJsonData(token, 'awards.json', newItems, currentSha, 'reorder awards');
 			await refreshData();
@@ -260,9 +257,11 @@
 		saving = true;
 		try {
 			const text = await importFile.text();
-			const imported = JSON.parse(text);
-			if (!Array.isArray(imported)) throw new Error('Invalid format: expected an array');
-			const token = getToken();
+			const parsedRaw = JSON.parse(text);
+			const validation = typia.validate<Award[]>(parsedRaw);
+			if (!validation.success) throw new Error('Invalid format: expected an array');
+			const imported = validation.data;
+			const token = data.token;
 			const now = new Date().toISOString();
 			const newItems: Award[] = (imported as Record<string, unknown>[]).map((item, index) => ({
 				id: typeof item.id === 'string' ? item.id : crypto.randomUUID(),
@@ -298,23 +297,6 @@
 				return 'blue';
 		}
 	}
-
-	function exportJSON() {
-		const cleanData = items
-			.slice()
-			.sort((a, b) => a.order - b.order)
-			.map(({ name, date, status, order }) => ({ name, date, status, order }));
-		const dataStr = JSON.stringify(cleanData, null, 2);
-		const blob = new Blob([dataStr], { type: 'application/json' });
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = `awards-${new Date().toISOString().split('T')[0]}.json`;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-		URL.revokeObjectURL(url);
-	}
 </script>
 
 <div class="px-4 pt-6">
@@ -336,10 +318,6 @@
 				<Button size="sm" color="alternative" onclick={toggleReorder}>キャンセル</Button>
 			{:else}
 				<Button color="alternative" size="sm" onclick={toggleReorder}>並び替え</Button>
-				<Button color="alternative" size="sm" onclick={exportJSON} class="gap-2">
-					<DownloadOutline class="h-4 w-4" />
-					エクスポート
-				</Button>
 				<Button
 					color="alternative"
 					size="sm"

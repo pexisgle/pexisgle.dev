@@ -11,18 +11,15 @@
 		Modal,
 		Fileupload
 	} from 'flowbite-svelte';
-	import {
-		EditOutline,
-		TrashBinOutline,
-		DownloadOutline,
-		UploadOutline
-	} from 'flowbite-svelte-icons';
+	import { EditOutline, TrashBinOutline, UploadOutline } from 'flowbite-svelte-icons';
 	import Icon from '@iconify/svelte';
 	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
 	import { toast } from '$lib/stores/toast';
-	import { getToken } from '$lib/auth';
+	import typia from 'typia';
 	import { ghReadJsonData, ghWriteJsonData } from '$lib/github';
+
+	let { data } = $props();
 
 	type Skill = {
 		id: string;
@@ -68,9 +65,8 @@
 
 	onMount(async () => {
 		try {
-			const token = getToken();
-			const { data } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
-			items = normalizeSkills(data);
+			const { data: skill_data } = await ghReadJsonData<Skill[]>(data.token, 'skills.json', []);
+			items = normalizeSkills(skill_data);
 			formOrder = items.length > 0 ? Math.max(...items.map((s) => s.order), -1) + 1 : 0;
 		} catch (e) {
 			toast.error('データの読み込みに失敗しました: ' + e);
@@ -115,8 +111,11 @@
 	async function handleCreate() {
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
+			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
+				data.token,
+				'skills.json',
+				[]
+			);
 			const newItem: Skill = {
 				id: crypto.randomUUID(),
 				name: formName,
@@ -124,8 +123,14 @@
 				confidence: Number(formConfidence),
 				order: Number(formOrder)
 			};
-			const updated = [...data, newItem];
-			await ghWriteJsonData(token, 'skills.json', updated, sha, `create skill: ${newItem.name}`);
+			const updated = [...skill_data, newItem];
+			await ghWriteJsonData(
+				data.token,
+				'skills.json',
+				updated,
+				sha,
+				`create skill: ${newItem.name}`
+			);
 			items = normalizeSkills(updated);
 			toast.success('スキルを作成しました');
 			startCreate();
@@ -140,9 +145,12 @@
 		if (!editingId) return;
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
-			const updated = data.map((s) =>
+			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
+				data.token,
+				'skills.json',
+				[]
+			);
+			const updated = skill_data.map((s) =>
 				s.id === editingId
 					? {
 							...s,
@@ -153,7 +161,7 @@
 						}
 					: s
 			);
-			await ghWriteJsonData(token, 'skills.json', updated, sha, `update skill: ${formName}`);
+			await ghWriteJsonData(data.token, 'skills.json', updated, sha, `update skill: ${formName}`);
 			items = normalizeSkills(updated);
 			toast.success('スキルを更新しました');
 			startCreate();
@@ -167,12 +175,15 @@
 	async function handleDelete(id: string) {
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
-			const deleted = data.find((s) => s.id === id);
-			const updated = data.filter((s) => s.id !== id);
+			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
+				data.token,
+				'skills.json',
+				[]
+			);
+			const deleted = skill_data.find((s) => s.id === id);
+			const updated = skill_data.filter((s) => s.id !== id);
 			await ghWriteJsonData(
-				token,
+				data.token,
 				'skills.json',
 				updated,
 				sha,
@@ -191,15 +202,18 @@
 	async function handleReorder() {
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
+			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
+				data.token,
+				'skills.json',
+				[]
+			);
 			const reordered = normalizeSkills(
 				localSkills.map((item, index) => {
-					const original = data.find((s) => s.id === item.id);
+					const original = skill_data.find((s) => s.id === item.id);
 					return original ? { ...original, order: index } : { ...item, order: index };
 				})
 			);
-			await ghWriteJsonData(token, 'skills.json', reordered, sha, 'reorder skills');
+			await ghWriteJsonData(data.token, 'skills.json', reordered, sha, 'reorder skills');
 			items = reordered;
 			isReordering = false;
 			reorderedItems = null;
@@ -216,10 +230,11 @@
 		saving = true;
 		try {
 			const text = await importFile.text();
-			const parsed = JSON.parse(text) as Skill[];
-			if (!Array.isArray(parsed)) throw new Error('Invalid format: expected an array');
-			const token = getToken();
-			const { sha } = await ghReadJsonData<Skill[]>(token, 'skills.json', []);
+			const parsedRaw = JSON.parse(text);
+			const validation = typia.validate<Skill[]>(parsedRaw);
+			if (!validation.success) throw new Error('Invalid format: expected an array');
+			const parsed = validation.data;
+			const { sha } = await ghReadJsonData<Skill[]>(data.token, 'skills.json', []);
 			const withIds = normalizeSkills(
 				parsed.map((item, index) => ({
 					...item,
@@ -227,7 +242,7 @@
 					order: item.order ?? index
 				}))
 			);
-			await ghWriteJsonData(token, 'skills.json', withIds, sha, 'import skills');
+			await ghWriteJsonData(data.token, 'skills.json', withIds, sha, 'import skills');
 			items = withIds;
 			importModalOpen = false;
 			importFile = null;
@@ -242,25 +257,6 @@
 	function handleImportFormSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		handleImport();
-	}
-
-	function exportJSON() {
-		const cleanData = $state.snapshot(localSkills).map(({ name, icon, confidence, order }) => ({
-			name,
-			icon,
-			confidence,
-			order
-		}));
-		const dataStr = JSON.stringify(cleanData, null, 2);
-		const blob = new Blob([dataStr], { type: 'application/json' });
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = `skills-${new Date().toISOString().split('T')[0]}.json`;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-		URL.revokeObjectURL(url);
 	}
 
 	// DnD Logic
@@ -314,10 +310,6 @@
 				<Button size="sm" color="alternative" onclick={toggleReorder}>キャンセル</Button>
 			{:else}
 				<Button color="alternative" size="sm" onclick={toggleReorder}>並び替え</Button>
-				<Button color="alternative" size="sm" onclick={exportJSON} class="gap-2">
-					<DownloadOutline class="h-4 w-4" />
-					エクスポート
-				</Button>
 				<Button
 					color="alternative"
 					size="sm"

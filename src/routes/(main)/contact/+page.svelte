@@ -101,14 +101,6 @@ h1
 	color: transparent
 	margin: 0
 
-.description
-	color: rgba(255, 255, 255, 0.7)
-	text-align: center
-	font-size: 1.1rem
-	line-height: 1.6
-	max-width: 500px
-	margin: 0
-
 .glass-links
 	display: flex
 	flex-direction: column

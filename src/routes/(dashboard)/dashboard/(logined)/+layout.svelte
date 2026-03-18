@@ -17,13 +17,13 @@
 		DarkMode
 	} from 'flowbite-svelte';
 	import { GridSolid, BellSolid } from 'flowbite-svelte-icons';
-	import SidebarNav from '$lib/components/SidebarNav.svelte';
-	import ToastContainer from '$lib/components/ToastContainer.svelte';
+	import SidebarNav from '$lib/components/dashboard/SidebarNav.svelte';
+	import ToastContainer from '$lib/components/dashboard/ToastContainer.svelte';
 	import { menuItems } from '$lib/menu';
-	import { getToken, clearToken, getGitHubUser, checkRepoAccess, type GitHubUser } from '$lib/auth';
+	import { clearToken, getGitHubUser, checkRepoAccess, type GitHubUser } from '$lib/auth';
 	import { PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO } from '$env/static/public';
 
-	let { children } = $props();
+	let { children, data } = $props();
 
 	let drawerOpen = $state(false);
 	let user = $state<GitHubUser | null>(null);
@@ -38,14 +38,13 @@
 	});
 
 	onMount(async () => {
-		const token = getToken();
-		if (!token) {
+		if (!data.token || data.token === '') {
 			goto('/dashboard/signin');
 			return;
 		}
 		const [userData, hasAccess] = await Promise.all([
-			getGitHubUser(token),
-			checkRepoAccess(token, PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO)
+			getGitHubUser(data.token),
+			checkRepoAccess(data.token, PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO)
 		]);
 		if (!hasAccess || !userData) {
 			clearToken();

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import MarkdownPreview from '$lib/components/MarkdownPreviewMain.svelte';
+	import MarkdownPreview from '$lib/components/main/MarkdownPreview.svelte';
 	import { MetaTags } from 'svelte-meta-tags';
 
 	let { data }: PageProps = $props();
@@ -52,7 +52,7 @@
 
 		{#if work.article}
 			<div class="article-content">
-				<MarkdownPreview content={work.article} />
+				<MarkdownPreview content={work.article} wrap={false} />
 			</div>
 		{/if}
 	</div>
@@ -86,11 +86,11 @@
         h1
             font-size: 2.5em
             margin: 0
-        
+
         .period
             font-style: italic
             opacity: 0.8
-        
+
         .type-badge
             display: inline-block
             background: rgba(255, 255, 255, 0.1)
@@ -107,7 +107,7 @@
             margin-top: 1em
             flex-wrap: wrap
             justify-content: center
-            
+
             a
                 display: inline-block
                 padding: 0.5em 1.5em
@@ -116,7 +116,7 @@
                 text-decoration: none
                 border-radius: 0.3em
                 transition: background 0.2s
-                
+
                 &:hover
                     background: var(--accent-color)
 .article-content

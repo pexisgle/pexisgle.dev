@@ -11,19 +11,15 @@
 		Modal,
 		Fileupload
 	} from 'flowbite-svelte';
-	import {
-		EditOutline,
-		TrashBinOutline,
-		DownloadOutline,
-		UploadOutline
-	} from 'flowbite-svelte-icons';
+	import { EditOutline, TrashBinOutline, UploadOutline } from 'flowbite-svelte-icons';
 	import { flip } from 'svelte/animate';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 	import { toast } from '$lib/stores/toast';
-	import { getToken } from '$lib/auth';
+	import typia from 'typia';
 	import { ghReadJsonData, ghWriteJsonData } from '$lib/github';
 
+	let { data } = $props();
 	type SnsItem = {
 		id: string;
 		name: string;
@@ -60,10 +56,9 @@
 
 	onMount(async () => {
 		try {
-			const token = getToken();
-			const { data } = await ghReadJsonData<SnsItem[]>(token, 'sns.json', []);
-			items = data;
-			formOrder = data.length > 0 ? Math.max(...data.map((s) => s.order), -1) + 1 : 0;
+			const { data: sns_data } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
+			items = sns_data;
+			formOrder = sns_data.length > 0 ? Math.max(...sns_data.map((s) => s.order), -1) + 1 : 0;
 		} catch (e) {
 			toast.error('データの読み込みに失敗しました: ' + e);
 		} finally {
@@ -110,8 +105,7 @@
 	async function handleCreate() {
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<SnsItem[]>(token, 'sns.json', []);
+			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
 			const newItem: SnsItem = {
 				id: crypto.randomUUID(),
 				name: formName,
@@ -120,8 +114,8 @@
 				color: formColor,
 				order: Number(formOrder)
 			};
-			const updated = [...data, newItem];
-			await ghWriteJsonData(token, 'sns.json', updated, sha, `create sns: ${newItem.name}`);
+			const updated = [...sns_data, newItem];
+			await ghWriteJsonData(data.token, 'sns.json', updated, sha, `create sns: ${newItem.name}`);
 			items = updated;
 			toast.success('SNSを作成しました');
 			startCreate();
@@ -136,9 +130,8 @@
 		if (!editingId) return;
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<SnsItem[]>(token, 'sns.json', []);
-			const updated = data.map((s) =>
+			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
+			const updated = sns_data.map((s) =>
 				s.id === editingId
 					? {
 							...s,
@@ -150,7 +143,7 @@
 						}
 					: s
 			);
-			await ghWriteJsonData(token, 'sns.json', updated, sha, `update sns: ${formName}`);
+			await ghWriteJsonData(data.token, 'sns.json', updated, sha, `update sns: ${formName}`);
 			items = updated;
 			toast.success('SNSを更新しました');
 			startCreate();
@@ -164,11 +157,16 @@
 	async function handleDelete(id: string) {
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<SnsItem[]>(token, 'sns.json', []);
-			const deleted = data.find((s) => s.id === id);
-			const updated = data.filter((s) => s.id !== id);
-			await ghWriteJsonData(token, 'sns.json', updated, sha, `delete sns: ${deleted?.name ?? id}`);
+			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
+			const deleted = sns_data.find((s) => s.id === id);
+			const updated = sns_data.filter((s) => s.id !== id);
+			await ghWriteJsonData(
+				data.token,
+				'sns.json',
+				updated,
+				sha,
+				`delete sns: ${deleted?.name ?? id}`
+			);
 			items = updated;
 			if (editingId === id) startCreate();
 			toast.success('SNSを削除しました');
@@ -182,13 +180,12 @@
 	async function handleReorder() {
 		saving = true;
 		try {
-			const token = getToken();
-			const { data, sha } = await ghReadJsonData<SnsItem[]>(token, 'sns.json', []);
+			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
 			const reordered = localSnsItems.map((item, index) => {
-				const original = data.find((s) => s.id === item.id);
+				const original = sns_data.find((s) => s.id === item.id);
 				return original ? { ...original, order: index } : { ...item, order: index };
 			});
-			await ghWriteJsonData(token, 'sns.json', reordered, sha, 'reorder sns');
+			await ghWriteJsonData(data.token, 'sns.json', reordered, sha, 'reorder sns');
 			items = reordered;
 			isReordering = false;
 			reorderedItems = null;
@@ -205,16 +202,17 @@
 		saving = true;
 		try {
 			const text = await importFile.text();
-			const parsed = JSON.parse(text) as SnsItem[];
-			if (!Array.isArray(parsed)) throw new Error('Invalid format: expected an array');
-			const token = getToken();
-			const { sha } = await ghReadJsonData<SnsItem[]>(token, 'sns.json', []);
+			const parsedRaw = JSON.parse(text);
+			const validation = typia.validate<SnsItem[]>(parsedRaw);
+			if (!validation.success) throw new Error('Invalid format: expected an array');
+			const parsed = validation.data;
+			const { sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
 			const withIds = parsed.map((item, index) => ({
 				...item,
 				id: item.id ?? crypto.randomUUID(),
 				order: item.order ?? index
 			}));
-			await ghWriteJsonData(token, 'sns.json', withIds, sha, 'import sns');
+			await ghWriteJsonData(data.token, 'sns.json', withIds, sha, 'import sns');
 			items = withIds;
 			importModalOpen = false;
 			importFile = null;
@@ -229,26 +227,6 @@
 	function handleImportFormSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		handleImport();
-	}
-
-	function exportJSON() {
-		const cleanData = $state.snapshot(localSnsItems).map(({ name, icon, url, color, order }) => ({
-			name,
-			icon,
-			url,
-			color,
-			order
-		}));
-		const dataStr = JSON.stringify(cleanData, null, 2);
-		const blob = new Blob([dataStr], { type: 'application/json' });
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = `sns-${new Date().toISOString().split('T')[0]}.json`;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-		URL.revokeObjectURL(url);
 	}
 
 	// DnD Logic
@@ -302,10 +280,6 @@
 				<Button size="sm" color="alternative" onclick={toggleReorder}>キャンセル</Button>
 			{:else}
 				<Button color="alternative" size="sm" onclick={toggleReorder}>並び替え</Button>
-				<Button color="alternative" size="sm" onclick={exportJSON} class="gap-2">
-					<DownloadOutline class="h-4 w-4" />
-					エクスポート
-				</Button>
 				<Button
 					color="alternative"
 					size="sm"

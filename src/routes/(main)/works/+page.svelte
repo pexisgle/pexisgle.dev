@@ -87,7 +87,7 @@
 	display: flex
 	flex-direction: column
 	gap: $gap-xs
-	
+
 	.work-link
 		text-decoration: none
 		color: inherit

@@ -1,4 +1,4 @@
-# [pexisgle.dev](https://pexisgle.dev)
+﻿# [pexisgle.dev](https://pexisgle.dev)
 
 [![CI](https://github.com/pexisgle/pexisgle.dev/actions/workflows/ci.yml/badge.svg)](https://github.com/pexisgle/pexisgle.dev/actions/workflows/ci.yml)
 [Visit Website](https://pexisgle.dev)
@@ -31,7 +31,7 @@ SvelteKit と Cloudflare D1 を使用して構築された、個人的な Web �
 ### Form & Validation
 
 - **Form Handling:** [Superforms](https://superforms.rocks/)
-- **Validation:** [Arktype](https://arktype.io/)
+- **Validation:** [Typia](https://typia.io/)
 
 ## 🛠️ 開発環境のセットアップ (Setup)
 

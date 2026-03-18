@@ -1,4 +1,4 @@
-import { getWorks, getWork } from '$lib/content';
+import { getWorks, getWork } from '$lib/server/content';
 import type { PageServerLoad, EntryGenerator } from './$types';
 import { error } from '@sveltejs/kit';
 

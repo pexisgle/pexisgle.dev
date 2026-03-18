@@ -1,4 +1,4 @@
-{
+﻿{
 	"name": "Bun & SvelteKit",
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
 	"features": {
@@ -13,7 +13,7 @@
 				"bradlc.vscode-tailwindcss",
 				"dbaeumer.vscode-eslint",
 				"esbenp.prettier-vscode",
-				"arktypeio.arkdark",
+				"typiaio.arkdark",
 				"syler.sass-indented"
 			]
 		}

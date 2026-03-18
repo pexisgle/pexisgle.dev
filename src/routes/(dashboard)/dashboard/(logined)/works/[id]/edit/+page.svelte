@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import {
 		Label,
 		Input,
@@ -17,14 +17,15 @@
 		Alert
 	} from 'flowbite-svelte';
 	import { PlusOutline, TrashBinOutline } from 'flowbite-svelte-icons';
-	import { getToken } from '$lib/auth';
 	import { ghGetWork, ghPutWork, ghUploadImage, ghDeleteFile } from '$lib/github';
+
+	let { data } = $props();
 	import type { WorkFileData } from '$lib/github';
-	import CartaEditor from '$lib/components/CartaEditor.svelte';
+	import CartaEditor from '$lib/components/dashboard/CartaEditor.svelte';
 	import { workTypesOptions } from '$lib/types/work';
 	import { toast } from '$lib/stores/toast';
 
-	const workId = $derived($page.params.id ?? '');
+	const workId = $derived(page.params.id ?? '');
 
 	// Loading state
 	let loading = $state(true);
@@ -53,23 +54,22 @@
 		loading = true;
 		notFound = false;
 		try {
-			const token = getToken();
-			const result = await ghGetWork(token, workId);
+			const result = await ghGetWork(data.token, workId);
 			if (!result) {
 				notFound = true;
 				return;
 			}
-			const { data, sha: fileSha } = result;
+			const { data: workData, sha: fileSha } = result;
 			sha = fileSha;
-			originalCreatedAt = data.createdAt;
-			formId = data.id;
-			title = data.title;
-			type = data.type;
-			description = data.description ?? '';
-			creationPeriod = data.creationPeriod ?? '';
-			article = data.article ?? '';
-			currentThumbnail = data.thumbnail ?? null;
-			urls = data.urls.map((u) => ({ id: u.id, title: u.title, url: u.url }));
+			originalCreatedAt = workData.createdAt;
+			formId = workData.id;
+			title = workData.title;
+			type = workData.type;
+			description = workData.description ?? '';
+			creationPeriod = workData.creationPeriod ?? '';
+			article = workData.article ?? '';
+			currentThumbnail = workData.thumbnail ?? null;
+			urls = workData.urls.map((u) => ({ id: u.id, title: u.title, url: u.url }));
 		} catch (e) {
 			toast.error('作品の読み込みに失敗しました');
 			console.error(e);
@@ -99,12 +99,10 @@
 
 		submitting = true;
 		try {
-			const token = getToken();
-
 			let newThumbnail = currentThumbnail;
 			if (thumbnailFile) {
 				const buffer = await thumbnailFile.arrayBuffer();
-				newThumbnail = await ghUploadImage(token, crypto.randomUUID(), buffer);
+				newThumbnail = await ghUploadImage(data.token, crypto.randomUUID(), buffer);
 			}
 
 			const newId = formId.trim() || workId;
@@ -112,11 +110,11 @@
 			const updatedWork: WorkFileData = {
 				id: newId,
 				title: title.trim(),
-				description: description.trim() || null,
-				thumbnail: newThumbnail,
+				description: description.trim(),
+				thumbnail: newThumbnail || undefined,
 				type,
-				creationPeriod: creationPeriod.trim() || null,
-				article: article.trim() || null,
+				creationPeriod: creationPeriod.trim() || undefined,
+				article: article.trim() || undefined,
 				createdAt: originalCreatedAt,
 				updatedAt: new Date().toISOString(),
 				urls: urls.map((u) => ({ id: u.id, title: u.title, url: u.url }))
@@ -124,15 +122,15 @@
 
 			if (newId !== workId) {
 				// ID changed: create file at new path, then delete old path
-				await ghPutWork(token, updatedWork);
+				await ghPutWork(data.token, updatedWork);
 				await ghDeleteFile(
-					token,
-					`content/works/${workId}.json`,
+					data.token,
+					`content/works/${workId}.md`,
 					sha,
 					`rename work: ${workId} -> ${newId}`
 				);
 			} else {
-				await ghPutWork(token, updatedWork, sha);
+				await ghPutWork(data.token, updatedWork, sha);
 			}
 
 			toast.success('作品を更新しました');

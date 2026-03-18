@@ -3,7 +3,6 @@
 	import * as THREE from 'three';
 	import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 	import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-	import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 	interface Props {
@@ -173,18 +172,7 @@
 			console.error('Error loading model:', error);
 		};
 
-		if (fileExtension === 'fbx') {
-			// Load FBX
-			const fbxLoader = new FBXLoader();
-			fbxLoader.load(
-				src,
-				(object: THREE.Group) => {
-					processModel(object, object.animations);
-				},
-				onProgress,
-				onError
-			);
-		} else if (fileExtension === 'glb' || fileExtension === 'gltf') {
+		if (fileExtension === 'glb' || fileExtension === 'gltf') {
 			// Load GLTF/GLB
 			const gltfLoader = new GLTFLoader();
 

@@ -1,3 +1,17 @@
+import type { Component } from 'svelte';
+import {
+	GridSolid,
+	UsersGroupSolid,
+	ImageSolid,
+	BriefcaseSolid,
+	NewspaperSolid,
+	AwardSolid,
+	BadgeCheckSolid,
+	LightbulbSolid,
+	ShareNodesSolid,
+	CogSolid
+} from 'flowbite-svelte-icons';
+
 export interface MenuItem {
 	label: string;
 	href: string;
@@ -6,6 +20,20 @@ export interface MenuItem {
 	description?: string;
 	color?: string;
 }
+
+/** Shared icon map used by SidebarNav and Dashboard page. */
+export const iconMap: Record<string, Component> = {
+	GridSolid,
+	UsersGroupSolid,
+	ImageSolid,
+	BriefcaseSolid,
+	NewspaperSolid,
+	AwardSolid,
+	BadgeCheckSolid,
+	LightbulbSolid,
+	ShareNodesSolid,
+	CogSolid
+};
 
 export const menuItems: MenuItem[] = [
 	{

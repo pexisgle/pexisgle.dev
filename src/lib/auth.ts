@@ -3,8 +3,12 @@
  * The GitHub OAuth access token is stored in a browser cookie (gh_token)
  * set by the server-side OAuth callback.
  */
-
+import { Octokit } from '@octokit/rest';
 const COOKIE_NAME = 'gh_token';
+
+/** Create an Octokit instance with the given token. Shared across auth and github modules. */
+export const octokitWithToken = (token: string): Octokit =>
+	new Octokit({ auth: token, userAgent: 'pexisgle-dashboard/1.0' });
 
 /** Read the GitHub token from the browser cookie. Returns '' if not present. */
 export function getToken(): string {
@@ -26,14 +30,13 @@ export interface GitHubUser {
 
 /** Fetch the authenticated GitHub user's profile. */
 export async function getGitHubUser(token: string): Promise<GitHubUser | null> {
-	const res = await fetch('https://api.github.com/user', {
-		headers: {
-			Authorization: `Bearer ${token}`,
-			'User-Agent': 'pexisgle-dashboard'
-		}
-	});
-	if (!res.ok) return null;
-	return res.json() as Promise<GitHubUser>;
+	try {
+		const octokit = octokitWithToken(token);
+		const { data } = await octokit.rest.users.getAuthenticated();
+		return data as GitHubUser;
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -45,13 +48,11 @@ export async function checkRepoAccess(
 	owner: string,
 	repo: string
 ): Promise<boolean> {
-	const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-			'User-Agent': 'pexisgle-dashboard'
-		}
-	});
-	if (!res.ok) return false;
-	const data = (await res.json()) as { permissions?: { push?: boolean } };
-	return data.permissions?.push === true;
+	try {
+		const octokit = octokitWithToken(token);
+		const { data } = await octokit.rest.repos.get({ owner, repo });
+		return data.permissions?.push === true;
+	} catch {
+		return false;
+	}
 }

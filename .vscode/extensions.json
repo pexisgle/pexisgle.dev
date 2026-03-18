@@ -1,4 +1,4 @@
-{
+﻿{
 	"recommendations": [
 		"svelte.svelte-vscode",
 		"bradlc.vscode-tailwindcss",
@@ -7,6 +7,6 @@
 		"mikestead.dotenv",
 		"syler.sass-indented",
 		"oven.bun-vscode",
-		"arktypeio.arkdark"
+		"typiaio.arkdark"
 	]
 }

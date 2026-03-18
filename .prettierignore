@@ -9,3 +9,5 @@ bun.lockb
 /static/
 /drizzle/
 /content/
+
+src/worker-configuration.d.ts

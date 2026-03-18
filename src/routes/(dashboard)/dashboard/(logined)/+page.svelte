@@ -1,38 +1,13 @@
 <script lang="ts">
 	import { Card, Button, Spinner } from 'flowbite-svelte';
-	import {
-		GridSolid,
-		UsersGroupSolid,
-		ImageSolid,
-		BriefcaseSolid,
-		NewspaperSolid,
-		AwardSolid,
-		BadgeCheckSolid,
-		LightbulbSolid,
-		ShareNodesSolid,
-		CogSolid,
-		UploadSolid
-	} from 'flowbite-svelte-icons';
-	import type { Component } from 'svelte';
+	import { GridSolid, UploadSolid } from 'flowbite-svelte-icons';
 	import { toast } from '$lib/stores/toast';
-	import { menuItems } from '$lib/menu';
-	import { getToken } from '$lib/auth';
+	import { menuItems, iconMap } from '$lib/menu';
 	import { ghTriggerWorkflow } from '$lib/github';
 
-	let building = $state(false);
+	let { data } = $props();
 
-	const iconMap: Record<string, Component> = {
-		GridSolid,
-		UsersGroupSolid,
-		ImageSolid,
-		BriefcaseSolid,
-		NewspaperSolid,
-		AwardSolid,
-		BadgeCheckSolid,
-		LightbulbSolid,
-		ShareNodesSolid,
-		CogSolid
-	};
+	let building = $state(false);
 
 	// Filter out the 'Dashboard' link itself and any items without description
 	let dashboardItems = $derived(
@@ -46,7 +21,7 @@
 	async function handleBuild() {
 		building = true;
 		try {
-			const token = getToken();
+			const token = data.token;
 			await ghTriggerWorkflow(token, 'deploy.yml');
 			toast.success(
 				'デプロイワークフローをトリガーしました。GitHub Actionsで進捗を確認してください。'

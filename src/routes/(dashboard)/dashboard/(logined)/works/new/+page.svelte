@@ -14,10 +14,12 @@
 		Spinner
 	} from 'flowbite-svelte';
 	import { TrashBinOutline, PlusOutline } from 'flowbite-svelte-icons';
-	import { getToken } from '$lib/auth';
 	import { ghUploadImage, ghPutWork } from '$lib/github';
+
+	let { data } = $props();
 	import type { WorkFileData } from '$lib/github';
-	import CartaEditor from '$lib/components/CartaEditor.svelte';
+	import typia from 'typia';
+	import CartaEditor from '$lib/components/dashboard/CartaEditor.svelte';
 	import { workTypesOptions } from '$lib/types/work';
 	import { toast } from '$lib/stores/toast';
 
@@ -50,7 +52,10 @@
 		const reader = new FileReader();
 		reader.onload = (ev) => {
 			try {
-				const json = JSON.parse(ev.target?.result as string);
+				const parsedRaw = JSON.parse(ev.target?.result as string);
+				const validation = typia.validate<WorkFileData>(parsedRaw);
+				if (!validation.success) throw new Error('Invalid work JSON');
+				const json = validation.data;
 				if (json.title) title = json.title;
 				if (json.description != null) description = json.description ?? '';
 				if (json.type) type = json.type;
@@ -82,12 +87,10 @@
 
 		submitting = true;
 		try {
-			const token = getToken();
-
 			let thumbnailFilename: string | null = null;
 			if (thumbnailFile) {
 				const buffer = await thumbnailFile.arrayBuffer();
-				thumbnailFilename = await ghUploadImage(token, crypto.randomUUID(), buffer);
+				thumbnailFilename = await ghUploadImage(data.token, crypto.randomUUID(), buffer);
 			}
 
 			const now = new Date().toISOString();
@@ -96,11 +99,11 @@
 			const workData: WorkFileData = {
 				id: workId,
 				title: title.trim(),
-				description: description.trim() || null,
-				thumbnail: thumbnailFilename,
+				description: description.trim() || undefined,
+				thumbnail: thumbnailFilename || undefined,
 				type,
-				creationPeriod: creationPeriod.trim() || null,
-				article: article.trim() || null,
+				creationPeriod: creationPeriod.trim() || undefined,
+				article: article.trim() || undefined,
 				createdAt: now,
 				updatedAt: now,
 				urls: urls.map((u) => ({
@@ -110,7 +113,7 @@
 				}))
 			};
 
-			await ghPutWork(token, workData);
+			await ghPutWork(data.token, workData);
 			toast.success('作品を作成しました');
 			goto('/dashboard/works');
 		} catch (e) {

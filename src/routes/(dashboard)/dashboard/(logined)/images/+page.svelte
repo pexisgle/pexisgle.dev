@@ -16,9 +16,10 @@
 		UploadOutline,
 		TrashBinSolid
 	} from 'flowbite-svelte-icons';
-	import { getToken } from '$lib/auth';
 	import { ghListFiles, ghUploadImage, ghDeleteFile } from '$lib/github';
 	import { toast } from '$lib/stores/toast';
+
+	let { data } = $props();
 
 	type ImageFile = { name: string; sha: string; path: string };
 
@@ -37,8 +38,7 @@
 	async function loadImages() {
 		loading = true;
 		try {
-			const token = getToken();
-			const files = await ghListFiles(token, 'static/images');
+			const files = await ghListFiles(data.token, 'static/images');
 			images = files.filter((f) => IMAGE_EXTS.some((ext) => f.name.toLowerCase().endsWith(ext)));
 		} catch (err) {
 			toast.error('Failed to load images: ' + err);
@@ -53,10 +53,9 @@
 		if (!file) return;
 		uploading = true;
 		try {
-			const token = getToken();
 			const buffer = await file.arrayBuffer();
 			const uuid = crypto.randomUUID();
-			const filename = await ghUploadImage(token, uuid, buffer);
+			const filename = await ghUploadImage(data.token, uuid, buffer);
 			toast.success(`Uploaded: ${filename}`);
 			await loadImages();
 		} catch (err) {
@@ -70,8 +69,7 @@
 	async function handleDelete(image: ImageFile) {
 		if (!confirm(`Delete ${image.name}?`)) return;
 		try {
-			const token = getToken();
-			await ghDeleteFile(token, image.path, image.sha, `delete image: ${image.name}`);
+			await ghDeleteFile(data.token, image.path, image.sha, `delete image: ${image.name}`);
 			images = images.filter((i) => i.name !== image.name);
 			toast.success(`Deleted: ${image.name}`);
 		} catch (err) {

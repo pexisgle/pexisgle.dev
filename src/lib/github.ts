@@ -3,11 +3,14 @@
  * All functions accept a `token` parameter (the GitHub OAuth access token)
  * and use PUBLIC env vars for owner/repo.
  */
+
+import typia from 'typia';
 import { PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO } from '$env/static/public';
 import { encode } from '@jsquash/webp';
 import resize, { initResize } from '@jsquash/resize';
+import matter from 'gray-matter';
+import { octokitWithToken } from '$lib/auth';
 
-const GITHUB_API = 'https://api.github.com';
 const COMMITTER = { name: 'pexisgle-dashboard', email: 'bot@pexisgle.dev' };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -20,22 +23,41 @@ interface GHFileResponse {
 
 // ─── Core file operations ─────────────────────────────────────────────────────
 
-function ghHeaders(token: string) {
+/** Get a file's content and SHA from the repo. Returns null if not found. */
+export async function ghGetFile(token: string, path: string): Promise<GHFileResponse | null> {
+	const octokit = octokitWithToken(token);
+	const { data } = await octokit.rest.repos.getContent({
+		owner: PUBLIC_GITHUB_OWNER,
+		repo: PUBLIC_GITHUB_REPO,
+		path
+	});
+	if (!data || Array.isArray(data)) return null;
+	if (data.type !== 'file') return null;
 	return {
-		Authorization: `token ${token}`,
-		Accept: 'application/vnd.github.v3+json',
-		'Content-Type': 'application/json',
-		'User-Agent': 'pexisgle-dashboard/1.0'
+		sha: data.sha,
+		content: data.content,
+		encoding: data.encoding
 	};
 }
 
-/** Get a file's content and SHA from the repo. Returns null if not found. */
-export async function ghGetFile(token: string, path: string): Promise<GHFileResponse | null> {
-	const url = `${GITHUB_API}/repos/${PUBLIC_GITHUB_OWNER}/${PUBLIC_GITHUB_REPO}/contents/${path}`;
-	const res = await fetch(url, { headers: ghHeaders(token) });
-	if (res.status === 404) return null;
-	if (!res.ok) throw new Error(`GitHub GET ${path} failed: ${res.status} ${await res.text()}`);
-	return res.json() as Promise<GHFileResponse>;
+/** Internal: create or update a file with already base64-encoded content. */
+async function ghPutRawFile(
+	token: string,
+	path: string,
+	content: string,
+	message: string,
+	sha?: string
+): Promise<void> {
+	const octokit = octokitWithToken(token);
+	await octokit.rest.repos.createOrUpdateFileContents({
+		owner: PUBLIC_GITHUB_OWNER,
+		repo: PUBLIC_GITHUB_REPO,
+		path,
+		message,
+		committer: COMMITTER,
+		content,
+		sha
+	});
 }
 
 /** Create or update a text file in the repo. Pass `sha` when updating. */
@@ -46,19 +68,8 @@ export async function ghPutFile(
 	message: string,
 	sha?: string
 ): Promise<void> {
-	const url = `${GITHUB_API}/repos/${PUBLIC_GITHUB_OWNER}/${PUBLIC_GITHUB_REPO}/contents/${path}`;
-	const body: Record<string, unknown> = {
-		message,
-		committer: COMMITTER,
-		content: btoa(unescape(encodeURIComponent(textContent)))
-	};
-	if (sha) body.sha = sha;
-	const res = await fetch(url, {
-		method: 'PUT',
-		headers: ghHeaders(token),
-		body: JSON.stringify(body)
-	});
-	if (!res.ok) throw new Error(`GitHub PUT ${path} failed: ${res.status} ${await res.text()}`);
+	const content = Buffer.from(textContent).toString('base64');
+	return ghPutRawFile(token, path, content, message, sha);
 }
 
 /** Put a binary file (ArrayBuffer) in the repo. */
@@ -69,21 +80,8 @@ export async function ghPutBinaryFile(
 	message: string,
 	sha?: string
 ): Promise<void> {
-	const url = `${GITHUB_API}/repos/${PUBLIC_GITHUB_OWNER}/${PUBLIC_GITHUB_REPO}/contents/${path}`;
-	const uint8 = new Uint8Array(buffer);
-	let binary = '';
-	for (let i = 0; i < uint8.length; i++) {
-		binary += String.fromCharCode(uint8[i]);
-	}
-	const base64 = btoa(binary);
-	const body: Record<string, unknown> = { message, committer: COMMITTER, content: base64 };
-	if (sha) body.sha = sha;
-	const res = await fetch(url, {
-		method: 'PUT',
-		headers: ghHeaders(token),
-		body: JSON.stringify(body)
-	});
-	if (!res.ok) throw new Error(`GitHub PUT ${path} failed: ${res.status} ${await res.text()}`);
+	const content = Buffer.from(buffer).toString('base64');
+	return ghPutRawFile(token, path, content, message, sha);
 }
 
 /** Delete a file from the repo. */
@@ -93,14 +91,15 @@ export async function ghDeleteFile(
 	sha: string,
 	message: string
 ): Promise<void> {
-	const url = `${GITHUB_API}/repos/${PUBLIC_GITHUB_OWNER}/${PUBLIC_GITHUB_REPO}/contents/${path}`;
-	const body = { message, committer: COMMITTER, sha };
-	const res = await fetch(url, {
-		method: 'DELETE',
-		headers: ghHeaders(token),
-		body: JSON.stringify(body)
+	const octokit = octokitWithToken(token);
+	await octokit.rest.repos.deleteFile({
+		owner: PUBLIC_GITHUB_OWNER,
+		repo: PUBLIC_GITHUB_REPO,
+		path,
+		message,
+		committer: COMMITTER,
+		sha
 	});
-	if (!res.ok) throw new Error(`GitHub DELETE ${path} failed: ${res.status} ${await res.text()}`);
 }
 
 /** List files in a directory. Returns [] if directory doesn't exist or is empty. */
@@ -108,12 +107,16 @@ export async function ghListFiles(
 	token: string,
 	dir: string
 ): Promise<{ name: string; sha: string; path: string }[]> {
-	const url = `${GITHUB_API}/repos/${PUBLIC_GITHUB_OWNER}/${PUBLIC_GITHUB_REPO}/contents/${dir}`;
-	const res = await fetch(url, { headers: ghHeaders(token) });
-	if (res.status === 404) return [];
-	if (!res.ok) return [];
-	const items = (await res.json()) as { name: string; sha: string; path: string; type: string }[];
-	return items.filter((i) => i.type === 'file');
+	const octokit = octokitWithToken(token);
+	const { data } = await octokit.rest.repos.getContent({
+		owner: PUBLIC_GITHUB_OWNER,
+		repo: PUBLIC_GITHUB_REPO,
+		path: dir
+	});
+	if (!Array.isArray(data)) return [];
+	return data
+		.filter((item) => item.type === 'file')
+		.map((item) => ({ name: item.name, sha: item.sha, path: item.path }));
 }
 
 // ─── Image upload ──────────────────────────────────────────────────────────────
@@ -172,8 +175,14 @@ export async function ghReadJsonData<T>(
 	const file = await ghGetFile(token, path);
 	if (!file) return { data: defaultValue, sha: null };
 	try {
-		const decoded = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
-		return { data: JSON.parse(decoded) as T, sha: file.sha };
+		const bytes = new Uint8Array(Buffer.from(file.content, 'base64'));
+		const decoded = new TextDecoder().decode(bytes);
+		const parsed = JSON.parse(decoded);
+		const validation = typia.validate<T>(parsed);
+		if (!validation.success) {
+			return { data: defaultValue, sha: file.sha };
+		}
+		return { data: validation.data as T, sha: file.sha };
 	} catch {
 		return { data: defaultValue, sha: file.sha };
 	}
@@ -188,7 +197,7 @@ export async function ghWriteJsonData<T>(
 	message: string
 ): Promise<void> {
 	const path = `content/data/${filename}`;
-	return ghPutFile(token, path, JSON.stringify(data, null, 2) + '\n', message, sha ?? undefined);
+	return ghPutFile(token, path, JSON.stringify(data, null, '\t') + '\n', message, sha ?? undefined);
 }
 
 // ─── Blog Markdown helpers ─────────────────────────────────────────────────────
@@ -196,10 +205,10 @@ export async function ghWriteJsonData<T>(
 export interface BlogFileData {
 	id: string;
 	title: string;
-	description?: string | null;
-	thumbnail?: string | null;
+	description?: string;
+	thumbnail?: string;
 	published?: boolean;
-	publishedAt?: string | null;
+	publishedAt?: string;
 	createdAt: string;
 	updatedAt: string;
 	content?: string;
@@ -207,13 +216,9 @@ export interface BlogFileData {
 
 /** Serialize blog data to a Markdown file with YAML frontmatter. */
 export function serializeBlog(blog: BlogFileData): string {
-	const { content = '', ...fm } = blog;
-	// omit `id` from frontmatter — id is derived from filename
-	const frontmatter = Object.entries(fm)
-		.filter(([, v]) => v !== null && v !== undefined)
-		.map(([k, v]) => `${k}: ${typeof v === 'string' ? JSON.stringify(v) : v}`)
-		.join('\n');
-	return `---\n${frontmatter}\n---\n${content}`;
+	const { content, ...frontmatterData } = blog;
+	const frontmatter = matter.stringify(content ?? '', frontmatterData);
+	return frontmatter;
 }
 
 /** Read and parse a single blog `.md` file. */
@@ -224,44 +229,35 @@ export async function ghGetBlog(
 	const path = `content/blog/${id}.md`;
 	const file = await ghGetFile(token, path);
 	if (!file) return null;
-	try {
-		const decoded = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
-		const match = decoded.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
-		if (!match) return null;
-		const data: Record<string, unknown> = {};
-		for (const line of match[1].split('\n')) {
-			const colon = line.indexOf(':');
-			if (colon < 0) continue;
-			const key = line.slice(0, colon).trim();
-			const raw = line.slice(colon + 1).trim();
-			try {
-				data[key] = JSON.parse(raw);
-			} catch {
-				data[key] = raw;
-			}
-		}
-		data.content = match[2].trim();
-		// ensure id is derived from filename, not frontmatter
-		(data as Record<string, unknown>).id = id;
-		return { data: data as unknown as BlogFileData, sha: file.sha };
-	} catch {
+	const bytes = Buffer.from(file.content, 'base64');
+	const decoded = new TextDecoder().decode(bytes);
+	const { data, content } = matter(decoded);
+	const validation = typia.validate<BlogFileData>({ ...data, content });
+	if (!validation.success) {
 		return null;
 	}
+	return { data: validation.data, sha: file.sha };
 }
 
 // ─── Work JSON helpers ─────────────────────────────────────────────────────────
 
+export interface WorkUrl {
+	id: string;
+	title: string;
+	url: string;
+}
+
 export interface WorkFileData {
 	id: string;
 	title: string;
-	description?: string | null;
-	thumbnail?: string | null;
+	description?: string;
+	thumbnail?: string;
 	type: string;
-	creationPeriod?: string | null;
-	article?: string | null;
+	creationPeriod?: string;
+	article?: string;
 	createdAt: string;
 	updatedAt: string;
-	urls: { id: string; title: string; url: string }[];
+	urls: WorkUrl[];
 }
 
 /** Read a single work file from content/works/. */
@@ -269,15 +265,39 @@ export async function ghGetWork(
 	token: string,
 	id: string
 ): Promise<{ data: WorkFileData; sha: string } | null> {
-	const path = `content/works/${id}.json`;
+	const path = `content/works/${id}.md`;
 	const file = await ghGetFile(token, path);
 	if (!file) return null;
 	try {
-		const decoded = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
-		const parsed = JSON.parse(decoded) as WorkFileData;
-		// ensure id comes from filename
-		parsed.id = id;
-		return { data: parsed, sha: file.sha };
+		const bytes = Buffer.from(file.content, 'base64');
+		const decoded = bytes.toString('utf-8');
+		const { data: frontmatter, content } = matter(decoded);
+
+		// Parse YAML front matter into WorkFileData
+		const parsed = {
+			id: id,
+			title: String(frontmatter.title ?? ''),
+			description: frontmatter.description ? String(frontmatter.description) : null,
+			thumbnail: frontmatter.thumbnail ? String(frontmatter.thumbnail) : null,
+			type: String(frontmatter.type ?? 'creation'),
+			creationPeriod: frontmatter.creationPeriod ? String(frontmatter.creationPeriod) : null,
+			article: content.trim() || null,
+			createdAt: String(frontmatter.createdAt ?? new Date().toISOString()),
+			updatedAt: String(frontmatter.updatedAt ?? new Date().toISOString()),
+			urls: Array.isArray(frontmatter.urls)
+				? frontmatter.urls.map((u: Record<string, unknown>) => ({
+						id: String(u.id),
+						title: String(u.title),
+						url: String(u.url)
+					}))
+				: []
+		};
+
+		const validation = typia.validate<WorkFileData>(parsed);
+		if (!validation.success) {
+			return null;
+		}
+		return { data: validation.data, sha: file.sha };
 	} catch {
 		return null;
 	}
@@ -285,16 +305,29 @@ export async function ghGetWork(
 
 /** Write a single work file to content/works/. */
 export async function ghPutWork(token: string, work: WorkFileData, sha?: string): Promise<void> {
-	const path = `content/works/${work.id}.json`;
-	// omit `id` from stored JSON — id is encoded in the filename
-	const { ...payload } = work;
-	return ghPutFile(
-		token,
-		path,
-		JSON.stringify(payload, null, 2) + '\n',
-		`${sha ? 'update' : 'create'} work: ${work.id}`,
-		sha
-	);
+	const path = `content/works/${work.id}.md`;
+
+	// Convert Work object to Markdown+YAML format
+	const frontmatter: Record<string, unknown> = {
+		title: work.title,
+		...(work.description && { description: work.description }),
+		...(work.thumbnail && { thumbnail: work.thumbnail }),
+		type: work.type,
+		...(work.creationPeriod && { creationPeriod: work.creationPeriod }),
+		createdAt: work.createdAt,
+		updatedAt: work.updatedAt,
+		...(work.urls.length > 0 && {
+			urls: work.urls.map((u) => ({
+				id: u.id,
+				title: u.title,
+				url: u.url
+			}))
+		})
+	};
+
+	const markdown = matter.stringify(work.article || '', frontmatter);
+
+	return ghPutFile(token, path, markdown, `${sha ? 'update' : 'create'} work: ${work.id}`, sha);
 }
 
 // ─── GitHub Actions ────────────────────────────────────────────────────────────
@@ -305,11 +338,11 @@ export async function ghTriggerWorkflow(
 	workflow: string,
 	ref = 'main'
 ): Promise<void> {
-	const url = `${GITHUB_API}/repos/${PUBLIC_GITHUB_OWNER}/${PUBLIC_GITHUB_REPO}/actions/workflows/${workflow}/dispatches`;
-	const res = await fetch(url, {
-		method: 'POST',
-		headers: ghHeaders(token),
-		body: JSON.stringify({ ref })
+	const octokit = octokitWithToken(token);
+	await octokit.rest.actions.createWorkflowDispatch({
+		owner: PUBLIC_GITHUB_OWNER,
+		repo: PUBLIC_GITHUB_REPO,
+		workflow_id: workflow,
+		ref
 	});
-	if (!res.ok) throw new Error(`GitHub Actions trigger failed: ${res.status} ${await res.text()}`);
 }

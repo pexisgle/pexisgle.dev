@@ -12,12 +12,12 @@
 		Heading,
 		Spinner
 	} from 'flowbite-svelte';
-	import CartaEditor from '$lib/components/CartaEditor.svelte';
-	import { getToken } from '$lib/auth';
+	import CartaEditor from '$lib/components/dashboard/CartaEditor.svelte';
 	import { ghPutFile, ghUploadImage, serializeBlog } from '$lib/github';
+
+	let { data } = $props();
 	import type { BlogFileData } from '$lib/github';
 	import { toast } from '$lib/stores/toast';
-	import { v4 as uuidv4 } from 'uuid';
 
 	let id = $state('');
 	let title = $state('');
@@ -35,14 +35,13 @@
 		}
 		submitting = true;
 		try {
-			const token = getToken();
 			const now = new Date().toISOString();
-			const blogId = id.trim() || uuidv4();
+			const blogId = id.trim() || crypto.randomUUID();
 
 			let thumbnailFilename: string | undefined;
 			if (thumbnailFile) {
 				const buffer = await thumbnailFile.arrayBuffer();
-				thumbnailFilename = await ghUploadImage(token, uuidv4(), buffer);
+				thumbnailFilename = await ghUploadImage(data.token, crypto.randomUUID(), buffer);
 			}
 
 			const blogData: BlogFileData = {
@@ -58,7 +57,7 @@
 			};
 
 			const path = `content/blog/${blogId}.md`;
-			await ghPutFile(token, path, serializeBlog(blogData), `create blog: ${blogId}`);
+			await ghPutFile(data.token, path, serializeBlog(blogData), `create blog: ${blogId}`);
 			toast.success('Blog post created');
 			goto('/dashboard/blog');
 		} catch (e) {

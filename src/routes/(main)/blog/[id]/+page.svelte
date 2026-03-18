@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import MarkdownPreview from '$lib/components/MarkdownPreviewMain.svelte';
+	import MarkdownPreview from '$lib/components/main/MarkdownPreview.svelte';
 	import { MetaTags } from 'svelte-meta-tags';
 
 	let { data }: PageProps = $props();
@@ -45,46 +45,50 @@
 
 		{#if post.content}
 			<div class="article-content">
-				<MarkdownPreview content={post.content} />
+				<MarkdownPreview content={post.content} wrap={false} />
 			</div>
 		{/if}
 	</div>
 </div>
 
 <style lang="sass">
+.bg
+	padding-top: 0
+	padding-bottom: 0
+
 .blog-detail-container
-    max-width: 800px
-    margin: 0 auto
-    padding: 2em 2em 4em
-    min-height: 100vh
+	max-width: 800px
+	margin: 0 auto
+	padding: 2em 2em 4em
+	min-height: 100vh
 
 .article-content
-    text-align: left
+	text-align: left
 
 .header-section
-    display: flex
-    flex-direction: column
-    gap: 2em
-    margin-bottom: 3em
-    text-align: center
+	display: flex
+	flex-direction: column
+	gap: 2em
+	margin-bottom: 3em
+	text-align: center
 
-    img.thumbnail
-        max-height: 500px
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3)
+	img.thumbnail
+		max-height: 500px
+		box-shadow: 0 4px 20px rgba(0,0,0,0.3)
 
-    .meta
-        display: flex
-        flex-direction: column
-        gap: 0.5em
-        align-items: center
+	.meta
+		display: flex
+		flex-direction: column
+		gap: 0.5em
+		align-items: center
 
-        h1
-            font-size: 3em
-            margin: 0
-            line-height: 1.2
+		h1
+			font-size: 3em
+			margin: 0
+			line-height: 1.2
 
-        .date
-            font-style: italic
-            opacity: 0.6
-            font-size: 1.1em
+		.date
+			font-style: italic
+			opacity: 0.6
+			font-size: 1.1em
 </style>
