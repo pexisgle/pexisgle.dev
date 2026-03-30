@@ -1,23 +1,27 @@
 [
 	{
+		"id":"3de80ca4-80aa-47db-93a5-defb464760b5",
 		"name": "2023/2024 JOI 本戦出場(B)",
 		"date": "2024-01",
 		"status": "Silver",
 		"order": 0
 	},
 	{
+		"id":"677c8f0d-c3d6-4206-a4a4-95b90c2c1024",
 		"name": "2024 SuperCon 本戦出場",
 		"date": "2024-08",
 		"status": "Silver",
 		"order": 1
 	},
 	{
+		"id":"295f1266-721e-43cd-ba44-459b99ba9421",
 		"name": "2024/2025 JOI 本戦出場(B)",
 		"date": "2024-01",
 		"status": "Silver",
 		"order": 2
 	},
 	{
+		"id":"822e526d-ce5f-4dcd-92f5-b49d995e5a6d",
 		"name": "2025 SuperCon 本戦出場",
 		"date": "2025-08",
 		"status": "Silver",

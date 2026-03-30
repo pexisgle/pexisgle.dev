@@ -52,8 +52,8 @@ export interface SNS {
 	url: string;
 	color: string;
 	order: number;
-	createdAt: string;
-	updatedAt: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface Skill {
@@ -62,8 +62,8 @@ export interface Skill {
 	icon: string;
 	confidence: number;
 	order: number;
-	createdAt: string;
-	updatedAt: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface Certification {
@@ -72,8 +72,8 @@ export interface Certification {
 	date: string | null;
 	status: string | null;
 	order: number;
-	createdAt: string;
-	updatedAt: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface Award {
@@ -82,8 +82,8 @@ export interface Award {
 	date: string | null;
 	status: 'Gold' | 'Silver' | 'Bronze' | null;
 	order: number;
-	createdAt: string;
-	updatedAt: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 // ─── Blog ─────────────────────────────────────────────────────────────────────
@@ -192,7 +192,7 @@ async function parseWorkFile(filePath: string): Promise<Work | null> {
 
 // ─── Data files ───────────────────────────────────────────────────────────────
 
-async function readDataFile<T>(filename: string): Promise<T[]> {
+async function readDataFile(filename: string): Promise<object[]> {
 	const filePath = join(CONTENT_DIR, 'data', filename);
 	let raw: string;
 	try {
@@ -202,30 +202,32 @@ async function readDataFile<T>(filename: string): Promise<T[]> {
 	}
 	try {
 		const parsed = JSON.parse(raw);
-		const validation = typia.validate<T[]>(parsed);
-		if (!validation.success) return [];
-		return validation.data;
+		return parsed;
 	} catch {
 		return [];
 	}
 }
 
 export async function getSNS(): Promise<SNS[]> {
-	const list = await readDataFile<SNS>('sns.json');
-	return list.sort((a, b) => a.order - b.order);
+	const list = await readDataFile('sns.json');
+	const vailed = typia.is<SNS[]>(list) ? list : [];
+	return vailed.sort((a, b) => a.order - b.order);
 }
 
 export async function getSkills(): Promise<Skill[]> {
-	const list = await readDataFile<Skill>('skills.json');
-	return list.sort((a, b) => a.order - b.order);
+	const list = await readDataFile('skills.json');
+	const vailed = typia.is<Skill[]>(list) ? list : [];
+	return vailed.sort((a, b) => a.order - b.order);
 }
 
 export async function getCertifications(): Promise<Certification[]> {
-	const list = await readDataFile<Certification>('certifications.json');
-	return list.sort((a, b) => a.order - b.order);
+	const list = await readDataFile('certifications.json');
+	const vailed = typia.is<Certification[]>(list) ? list : [];
+	return vailed.sort((a, b) => a.order - b.order);
 }
 
 export async function getAwards(): Promise<Award[]> {
-	const list = await readDataFile<Award>('awards.json');
-	return list.sort((a, b) => a.order - b.order);
+	const list = await readDataFile('awards.json');
+	const vailed = typia.is<Award[]>(list) ? list : [];
+	return vailed.sort((a, b) => a.order - b.order);
 }

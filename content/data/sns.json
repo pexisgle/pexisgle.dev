@@ -1,23 +1,26 @@
 [
-	{
-		"name": "GitHub",
-		"icon": "simple-icons:github",
-		"url": "https://github.com/pexisgle",
-		"color": "#24292E",
-		"order": 0
-	},
-	{
-		"name": "X",
-		"icon": "simple-icons:x",
-		"url": "https://twitter.com/pexisgle",
-		"color": "#1DA1F2",
-		"order": 1
-	},
-	{
-		"name": "youtube",
-		"icon": "simple-icons:youtube",
-		"url": "https://youtube.com/@pexisgle",
-		"color": "#FF0000",
-		"order": 2
-	}
+  {
+    "name": "GitHub",
+    "icon": "simple-icons:github",
+    "url": "https://github.com/pexisgle",
+    "color": "#24292E",
+    "order": 0,
+    "id": "efc6c1f2-6cc3-49f0-bb4e-7c875272ba7f"
+  },
+  {
+    "name": "X",
+    "icon": "simple-icons:x",
+    "url": "https://twitter.com/pexisgle",
+    "color": "#1DA1F2",
+    "order": 1,
+    "id": "aff60f69-7ae9-414d-8ff5-a326830d6d49"
+  },
+  {
+    "name": "youtube",
+    "icon": "simple-icons:youtube",
+    "url": "https://youtube.com/@pexisgle",
+    "color": "#FF0000",
+    "order": 2,
+    "id": "be17baa2-c335-4dea-93f0-c1351260a26e"
+  }
 ]
