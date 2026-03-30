@@ -1,7 +1,5 @@
 <script lang="ts">
-	import Markdown from 'svelte-exmarkdown';
-	import type { Plugin } from 'svelte-exmarkdown';
-	import rehypeHighlight from 'rehype-highlight';
+	import { marked } from 'marked';
 
 	interface Props {
 		content: string | undefined;
@@ -9,7 +7,6 @@
 	}
 
 	let { content, wrap = true }: Props = $props();
-	const plugins: Plugin[] = [{ rehypePlugin: rehypeHighlight }];
 </script>
 
 {#if wrap}
@@ -23,12 +20,14 @@
 			class="prose max-w-none flex-1 overflow-y-auto bg-white p-4 dark:bg-gray-800 dark:prose-invert"
 		>
 			{#if content}
-				<Markdown md={content} {plugins} />
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+				{@html marked.parse(content)}
 			{/if}
 		</div>
 	</div>
 {:else if content}
-	<Markdown md={content} {plugins} />
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+	{@html marked.parse(content)}
 {:else}
 	<p>プレビューするコンテンツがありません</p>
 {/if}

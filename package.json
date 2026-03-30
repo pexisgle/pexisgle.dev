@@ -4,8 +4,8 @@
 	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
-		"dev": "bunx --bun vite dev",
-		"build": "bunx --bun vite build",
+		"dev": "vite dev",
+		"build": "vite build",
 		"preview": "bun run build && wrangler dev --port 5173",
 		"prepare": "ts-patch install && husky && bunx --bun svelte-kit sync || echo ''",
 		"check": "bunx --bun svelte-kit sync && bunx --bun svelte-check --tsconfig ./tsconfig.json",
@@ -64,8 +64,8 @@
 		"dayjs": "^1.11.20",
 		"gray-matter": "^4.0.3",
 		"gsap": "^3.14.2",
+		"marked": "^17.0.5",
 		"rehype-highlight": "^7.0.2",
-		"svelte-exmarkdown": "^5.0.2",
 		"svelte-meta-tags": "^4.5.2",
 		"three": "^0.183.2",
 		"typia": "^12.0.1"
