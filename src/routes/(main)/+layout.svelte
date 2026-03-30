@@ -1,5 +1,5 @@
 <script lang="ts">
-	import 'ress';
+	import 'ress/dist/ress.min.css';
 	import './layout.sass';
 	import 'highlight.js/styles/github-dark.min.css';
 	import { setupViewTransition } from '$lib/utils/view-transition';
