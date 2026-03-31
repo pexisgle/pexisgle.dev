@@ -1,6 +1,6 @@
 import { github } from '$lib/server/auth';
 import { PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO } from '$env/static/public';
-import { checkRepoAccess } from '$lib/auth';
+import { checkRepoAccess } from '$lib/dashboard/auth';
 import type { RequestEvent } from './$types';
 import type { OAuth2Tokens } from 'arctic';
 

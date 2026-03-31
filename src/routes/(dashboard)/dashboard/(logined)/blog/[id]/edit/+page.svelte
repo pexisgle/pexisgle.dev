@@ -14,12 +14,18 @@
 		Heading,
 		Spinner
 	} from 'flowbite-svelte';
-	import CartaEditor from '$lib/components/dashboard/CartaEditor.svelte';
-	import { ghGetBlog, ghPutFile, ghDeleteFile, ghUploadImage, serializeBlog } from '$lib/github';
+	import CartaEditor from '$lib/dashboard/components/CartaEditor.svelte';
+	import {
+		ghGetBlog,
+		ghPutFile,
+		ghDeleteFile,
+		ghUploadImage,
+		serializeBlog
+	} from '$lib/dashboard/github';
 
 	let { data } = $props();
-	import type { BlogFileData } from '$lib/github';
-	import { toast } from '$lib/stores/toast';
+	import type { BlogFileData } from '$lib/dashboard/github';
+	import { toast } from '$lib/dashboard/stores/toast';
 
 	const originalId = page.params.id ?? '';
 

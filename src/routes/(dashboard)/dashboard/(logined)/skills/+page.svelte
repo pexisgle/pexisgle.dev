@@ -1,23 +1,12 @@
 <script lang="ts">
-	import {
-		Button,
-		Label,
-		Input,
-		Helper,
-		Breadcrumb,
-		BreadcrumbItem,
-		Heading,
-		Card,
-		Modal,
-		Fileupload
-	} from 'flowbite-svelte';
-	import { EditOutline, TrashBinOutline, UploadOutline } from 'flowbite-svelte-icons';
+	import { Button, Label, Input, Breadcrumb, BreadcrumbItem, Heading, Card } from 'flowbite-svelte';
+	import { EditOutline, TrashBinOutline } from 'flowbite-svelte-icons';
 	import Icon from '@iconify/svelte';
 	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
-	import { toast } from '$lib/stores/toast';
+	import { toast } from '$lib/dashboard/stores/toast';
 	import typia from 'typia';
-	import { ghReadJsonData, ghWriteJsonData } from '$lib/github';
+	import { ghReadJsonData, ghWriteJsonData } from '$lib/dashboard/github';
 
 	let { data } = $props();
 
@@ -28,16 +17,6 @@
 		confidence: number;
 		order: number;
 	};
-
-	function normalizeSkills(raw: Partial<Skill>[]): Skill[] {
-		return raw.map((item, index) => ({
-			id: typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID(),
-			name: typeof item.name === 'string' ? item.name : '',
-			icon: typeof item.icon === 'string' ? item.icon : '',
-			confidence: typeof item.confidence === 'number' ? item.confidence : 0,
-			order: typeof item.order === 'number' ? item.order : index
-		}));
-	}
 
 	// Data state
 	let items = $state<Skill[]>([]);
@@ -55,18 +34,14 @@
 	let isReordering = $state(false);
 	let reorderedItems = $state<Skill[] | null>(null);
 	let draggingIndex = $state<number | null>(null);
-
-	// Import state
-	let importModalOpen = $state(false);
-	let importFile = $state<File | null>(null);
-
 	// Derived
 	let localSkills = $derived(reorderedItems ?? items.slice().sort((a, b) => a.order - b.order));
 
 	onMount(async () => {
 		try {
-			const { data: skill_data } = await ghReadJsonData<Skill[]>(data.token, 'skills.json', []);
-			items = normalizeSkills(skill_data);
+			const { data: skill_data } = await ghReadJsonData(data.token, 'skills.json', []);
+			const validation = typia.validate<Skill[]>(skill_data);
+			items = validation.success ? validation.data : [];
 			formOrder = items.length > 0 ? Math.max(...items.map((s) => s.order), -1) + 1 : 0;
 		} catch (e) {
 			toast.error('データの読み込みに失敗しました: ' + e);
@@ -111,11 +86,11 @@
 	async function handleCreate() {
 		saving = true;
 		try {
-			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
-				data.token,
-				'skills.json',
-				[]
-			);
+			const { data: skill_data, sha } = await ghReadJsonData(data.token, 'skills.json', []);
+			if (!typia.is<Skill[]>(skill_data)) {
+				toast.error('既存のデータが不正な形式です');
+				return;
+			}
 			const newItem: Skill = {
 				id: crypto.randomUUID(),
 				name: formName,
@@ -123,15 +98,8 @@
 				confidence: Number(formConfidence),
 				order: Number(formOrder)
 			};
-			const updated = [...skill_data, newItem];
-			await ghWriteJsonData(
-				data.token,
-				'skills.json',
-				updated,
-				sha,
-				`create skill: ${newItem.name}`
-			);
-			items = normalizeSkills(updated);
+			items = [...skill_data, newItem];
+			await ghWriteJsonData(data.token, 'skills.json', items, sha, `create skill: ${newItem.name}`);
 			toast.success('スキルを作成しました');
 			startCreate();
 		} catch (e) {
@@ -145,12 +113,10 @@
 		if (!editingId) return;
 		saving = true;
 		try {
-			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
-				data.token,
-				'skills.json',
-				[]
-			);
-			const updated = skill_data.map((s) =>
+			const { data: raw_skill_data, sha } = await ghReadJsonData(data.token, 'skills.json', []);
+			const validation = typia.validate<Skill[]>(raw_skill_data);
+			const skill_data = validation.success ? validation.data : [];
+			items = skill_data.map((s) =>
 				s.id === editingId
 					? {
 							...s,
@@ -161,8 +127,7 @@
 						}
 					: s
 			);
-			await ghWriteJsonData(data.token, 'skills.json', updated, sha, `update skill: ${formName}`);
-			items = normalizeSkills(updated);
+			await ghWriteJsonData(data.token, 'skills.json', items, sha, `update skill: ${formName}`);
 			toast.success('スキルを更新しました');
 			startCreate();
 		} catch (e) {
@@ -175,21 +140,18 @@
 	async function handleDelete(id: string) {
 		saving = true;
 		try {
-			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
-				data.token,
-				'skills.json',
-				[]
-			);
+			const { data: raw_skill_data, sha } = await ghReadJsonData(data.token, 'skills.json', []);
+			const validation = typia.validate<Skill[]>(raw_skill_data);
+			const skill_data = validation.success ? validation.data : [];
 			const deleted = skill_data.find((s) => s.id === id);
-			const updated = skill_data.filter((s) => s.id !== id);
+			const items = skill_data.filter((s) => s.id !== id);
 			await ghWriteJsonData(
 				data.token,
 				'skills.json',
-				updated,
+				items,
 				sha,
 				`delete skill: ${deleted?.name ?? id}`
 			);
-			items = normalizeSkills(updated);
 			if (editingId === id) startCreate();
 			toast.success('スキルを削除しました');
 		} catch (e) {
@@ -202,17 +164,13 @@
 	async function handleReorder() {
 		saving = true;
 		try {
-			const { data: skill_data, sha } = await ghReadJsonData<Skill[]>(
-				data.token,
-				'skills.json',
-				[]
-			);
-			const reordered = normalizeSkills(
-				localSkills.map((item, index) => {
-					const original = skill_data.find((s) => s.id === item.id);
-					return original ? { ...original, order: index } : { ...item, order: index };
-				})
-			);
+			const { data: raw_skill_data, sha } = await ghReadJsonData(data.token, 'skills.json', []);
+			const validation = typia.validate<Skill[]>(raw_skill_data);
+			const skill_data = validation.success ? validation.data : [];
+			const reordered = localSkills.map((item, index) => {
+				const original = skill_data.find((s) => s.id === item.id);
+				return original ? { ...original, order: index } : { ...item, order: index };
+			});
 			await ghWriteJsonData(data.token, 'skills.json', reordered, sha, 'reorder skills');
 			items = reordered;
 			isReordering = false;
@@ -223,40 +181,6 @@
 		} finally {
 			saving = false;
 		}
-	}
-
-	async function handleImport() {
-		if (!importFile) return;
-		saving = true;
-		try {
-			const text = await importFile.text();
-			const parsedRaw = JSON.parse(text);
-			const validation = typia.validate<Skill[]>(parsedRaw);
-			if (!validation.success) throw new Error('Invalid format: expected an array');
-			const parsed = validation.data;
-			const { sha } = await ghReadJsonData<Skill[]>(data.token, 'skills.json', []);
-			const withIds = normalizeSkills(
-				parsed.map((item, index) => ({
-					...item,
-					id: item.id ?? crypto.randomUUID(),
-					order: item.order ?? index
-				}))
-			);
-			await ghWriteJsonData(data.token, 'skills.json', withIds, sha, 'import skills');
-			items = withIds;
-			importModalOpen = false;
-			importFile = null;
-			toast.success('インポートが完了しました');
-		} catch (e) {
-			toast.error('インポートに失敗しました: ' + e);
-		} finally {
-			saving = false;
-		}
-	}
-
-	function handleImportFormSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		handleImport();
 	}
 
 	// DnD Logic
@@ -310,15 +234,6 @@
 				<Button size="sm" color="alternative" onclick={toggleReorder}>キャンセル</Button>
 			{:else}
 				<Button color="alternative" size="sm" onclick={toggleReorder}>並び替え</Button>
-				<Button
-					color="alternative"
-					size="sm"
-					onclick={() => (importModalOpen = true)}
-					class="gap-2"
-				>
-					<UploadOutline class="h-4 w-4" />
-					インポート
-				</Button>
 			{/if}
 		</div>
 	</div>
@@ -457,30 +372,3 @@
 		</div>
 	</div>
 </div>
-
-<!-- Import Modal -->
-<Modal bind:open={importModalOpen} size="sm" title="スキルをインポート" autoclose={false}>
-	<form onsubmit={handleImportFormSubmit} class="space-y-4">
-		<div>
-			<Label for="import-file">JSONファイル</Label>
-			<Fileupload
-				id="import-file"
-				name="file"
-				accept=".json"
-				onchange={(e) => {
-					const target = e.target as HTMLInputElement;
-					importFile = target.files?.[0] || null;
-				}}
-				required
-			/>
-			<Helper class="mt-2">スキルデータを含むJSONファイルを選択してください</Helper>
-		</div>
-
-		<div class="flex justify-end gap-2">
-			<Button type="button" color="alternative" onclick={() => (importModalOpen = false)}>
-				キャンセル
-			</Button>
-			<Button type="submit" color="blue" disabled={!importFile || saving}>インポート</Button>
-		</div>
-	</form>
-</Modal>

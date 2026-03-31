@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import MarkdownPreview from '$lib/components/main/MarkdownPreview.svelte';
+	import MarkdownPreview from '$lib/main/components/MarkdownPreview.svelte';
 	import { MetaTags } from 'svelte-meta-tags';
 
 	let { data }: PageProps = $props();

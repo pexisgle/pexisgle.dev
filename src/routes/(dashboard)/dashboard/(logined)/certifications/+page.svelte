@@ -10,15 +10,13 @@
 		BreadcrumbItem,
 		Heading,
 		Card,
-		Modal,
-		Fileupload,
 		Spinner
 	} from 'flowbite-svelte';
-	import { EditOutline, TrashBinOutline, UploadOutline } from 'flowbite-svelte-icons';
+	import { EditOutline, TrashBinOutline } from 'flowbite-svelte-icons';
 	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
-	import { ghReadJsonData, ghWriteJsonData } from '$lib/github';
-	import { toast } from '$lib/stores/toast';
+	import { ghReadJsonData, ghWriteJsonData } from '$lib/dashboard/github';
+	import { toast } from '$lib/dashboard/stores/toast';
 	import typia from 'typia';
 
 	let { data } = $props();
@@ -32,19 +30,6 @@
 		createdAt: string;
 		updatedAt: string;
 	};
-
-	function normalizeCertifications(raw: Partial<Certification>[]): Certification[] {
-		const now = new Date().toISOString();
-		return raw.map((item, index) => ({
-			id: typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID(),
-			name: typeof item.name === 'string' ? item.name : '',
-			date: typeof item.date === 'string' ? item.date : null,
-			status: typeof item.status === 'string' ? item.status : null,
-			order: typeof item.order === 'number' ? item.order : index,
-			createdAt: typeof item.createdAt === 'string' ? item.createdAt : now,
-			updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : now
-		}));
-	}
 
 	// ── Core state ────────────────────────────────────────────────────────────
 	let items = $state<Certification[]>([]);
@@ -60,10 +45,6 @@
 	let editingId = $state<string | null>(null);
 	let nameError = $state('');
 
-	// ── Import / modal state ──────────────────────────────────────────────────
-	let importModalOpen = $state(false);
-	let importFile = $state<File | null>(null);
-
 	// ── Reorder state ─────────────────────────────────────────────────────────
 	let isReordering = $state(false);
 	let reorderedCertifications = $state<Certification[] | null>(null);
@@ -76,12 +57,13 @@
 	// ── Data loading ──────────────────────────────────────────────────────────
 	onMount(async () => {
 		try {
-			const { data: certification_data, sha } = await ghReadJsonData<Certification[]>(
+			const { data: certification_data, sha } = await ghReadJsonData(
 				data.token,
 				'certifications.json',
 				[]
 			);
-			items = normalizeCertifications(certification_data);
+			const validation = typia.validate<Certification[]>(certification_data);
+			items = validation.success ? validation.data : [];
 			currentSha = sha;
 		} catch (e) {
 			toast.error(e instanceof Error ? e.message : 'データの読み込みに失敗しました');
@@ -91,12 +73,13 @@
 	});
 
 	async function refreshData() {
-		const { data: certification_data, sha } = await ghReadJsonData<Certification[]>(
+		const { data: certification_data, sha } = await ghReadJsonData(
 			data.token,
 			'certifications.json',
 			[]
 		);
-		items = normalizeCertifications(certification_data);
+		const validation = typia.validate<Certification[]>(certification_data);
+		items = validation.success ? validation.data : [];
 		currentSha = sha;
 	}
 
@@ -268,37 +251,6 @@
 		draggingIndex = null;
 	}
 
-	// ── Import ────────────────────────────────────────────────────────────────
-	async function handleImport() {
-		if (!importFile) return;
-		saving = true;
-		try {
-			const text = await importFile.text();
-			const parsedRaw = JSON.parse(text);
-			const validation = typia.validate<Certification[]>(parsedRaw);
-			if (!validation.success) throw new Error('Invalid format: expected an array');
-			const imported = validation.data;
-			const newItems: Certification[] = normalizeCertifications(
-				imported as Record<string, unknown>[]
-			);
-			await ghWriteJsonData(
-				data.token,
-				'certifications.json',
-				newItems,
-				currentSha,
-				'import certifications'
-			);
-			await refreshData();
-			importModalOpen = false;
-			importFile = null;
-			toast.success('インポートが完了しました');
-		} catch (e) {
-			toast.error(e instanceof Error ? e.message : 'インポート中にエラーが発生しました');
-		} finally {
-			saving = false;
-		}
-	}
-
 	// ── Utilities ─────────────────────────────────────────────────────────────
 	function getStatusColor(status: string | null) {
 		switch (status) {
@@ -331,15 +283,6 @@
 				<Button size="sm" color="alternative" onclick={toggleReorder}>キャンセル</Button>
 			{:else}
 				<Button color="alternative" size="sm" onclick={toggleReorder}>並び替え</Button>
-				<Button
-					color="alternative"
-					size="sm"
-					onclick={() => (importModalOpen = true)}
-					class="gap-2"
-				>
-					<UploadOutline class="h-4 w-4" />
-					インポート
-				</Button>
 			{/if}
 		</div>
 	</div>
@@ -489,30 +432,3 @@
 		</div>
 	{/if}
 </div>
-
-<!-- Import Modal -->
-<Modal bind:open={importModalOpen} size="sm" title="資格をインポート" autoclose={false}>
-	<div class="space-y-4">
-		<div>
-			<Label for="import-file">JSONファイル</Label>
-			<Fileupload
-				id="import-file"
-				name="file"
-				accept=".json"
-				onchange={(e) => {
-					const target = e.target as HTMLInputElement;
-					importFile = target.files?.[0] || null;
-				}}
-			/>
-			<Helper class="mt-2">資格データを含むJSONファイルを選択してください</Helper>
-		</div>
-
-		<div class="flex justify-end gap-2">
-			<Button color="alternative" onclick={() => (importModalOpen = false)}>キャンセル</Button>
-			<Button color="blue" disabled={!importFile || saving} onclick={handleImport}>
-				{#if saving}<Spinner size="4" class="mr-1" />{/if}
-				インポート
-			</Button>
-		</div>
-	</div>
-</Modal>

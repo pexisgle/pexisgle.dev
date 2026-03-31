@@ -15,11 +15,11 @@
 		Spinner
 	} from 'flowbite-svelte';
 	import { PlusOutline, EditOutline, TrashBinOutline } from 'flowbite-svelte-icons';
-	import { ghListFiles, ghGetBlog, ghDeleteFile } from '$lib/github';
+	import { ghListFiles, ghGetBlog, ghDeleteFile } from '$lib/dashboard/github';
 
 	let { data } = $props();
-	import type { BlogFileData } from '$lib/github';
-	import { toast } from '$lib/stores/toast';
+	import type { BlogFileData } from '$lib/dashboard/github';
+	import { toast } from '$lib/dashboard/stores/toast';
 
 	interface BlogEntry {
 		id: string;

@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { Card, Button } from 'flowbite-svelte';
 	import { GithubSolid } from 'flowbite-svelte-icons';
-	import { getToken } from '$lib/auth';
+	import { getToken } from '$lib/dashboard/auth';
 
 	onMount(() => {
 		if (getToken()) goto('/dashboard');

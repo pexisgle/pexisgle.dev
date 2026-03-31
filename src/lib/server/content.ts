@@ -8,7 +8,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import matter from 'gray-matter';
 import typia from 'typia';
-import type { WorkType } from '$lib/types/work';
+import type { WorkType } from '$lib/main/types/work';
 
 const CONTENT_DIR = 'content';
 

@@ -16,8 +16,8 @@
 		UploadOutline,
 		TrashBinSolid
 	} from 'flowbite-svelte-icons';
-	import { ghListFiles, ghUploadImage, ghDeleteFile } from '$lib/github';
-	import { toast } from '$lib/stores/toast';
+	import { ghListFiles, ghUploadImage, ghDeleteFile } from '$lib/dashboard/github';
+	import { toast } from '$lib/dashboard/stores/toast';
 
 	let { data } = $props();
 

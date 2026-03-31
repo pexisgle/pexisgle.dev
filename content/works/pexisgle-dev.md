@@ -1,5 +1,5 @@
 ---
-title: 'Pexisgle''s Homepage'
+title: "Pexisgle's Homepage"
 description: 'このホームページです。'
 thumbnail: '/images/pexisgle-dev.webp'
 type: 'program'

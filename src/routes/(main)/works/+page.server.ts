@@ -1,5 +1,5 @@
 import { getWorks } from '$lib/server/content';
-import { work_types } from '$lib/types/work';
+import { work_types } from '$lib/main/types/work';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

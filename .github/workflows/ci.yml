@@ -17,8 +17,8 @@ jobs:
     env:
       GITHUB_CLIENT_ID: dummy_id
       GITHUB_CLIENT_SECRET: dummy_secret
-      PUBLIC_GITHUB_OWNER: ${{ vars.GITHUB_OWNER }}
-      PUBLIC_GITHUB_REPO: ${{ vars.GITHUB_REPO }}
+      PUBLIC_GITHUB_OWNER: ${{ github.repository_owner }}
+      PUBLIC_GITHUB_REPO: ${{ github.event.repository.name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

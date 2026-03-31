@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Card, Button, Spinner } from 'flowbite-svelte';
-	import { GridSolid, UploadSolid } from 'flowbite-svelte-icons';
-	import { toast } from '$lib/stores/toast';
-	import { menuItems, iconMap } from '$lib/menu';
-	import { ghTriggerWorkflow } from '$lib/github';
+	import { UploadSolid } from 'flowbite-svelte-icons';
+	import { toast } from '$lib/dashboard/stores/toast';
+	import { menuItems } from '$lib/dashboard/menu';
+	import { ghTriggerWorkflow } from '$lib/dashboard/github';
 
 	let { data } = $props();
 
@@ -13,10 +13,6 @@
 	let dashboardItems = $derived(
 		menuItems.filter((item) => item.label !== 'Dashboard' && item.description)
 	);
-
-	function getIcon(name: string) {
-		return iconMap[name] || GridSolid;
-	}
 
 	async function handleBuild() {
 		building = true;
@@ -60,8 +56,7 @@
 				<Card
 					class="p-6 transition-transform hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-gray-800"
 				>
-					{@const Icon = getIcon(item.iconName)}
-					<Icon class="mb-2 h-8 w-8 {item.color || 'text-gray-600 dark:text-gray-500'}" />
+					<item.icon class="mb-2 h-8 w-8 {item.color || 'text-gray-600 dark:text-gray-500'}" />
 					<h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
 						{item.label}
 					</h5>

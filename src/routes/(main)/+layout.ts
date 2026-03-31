@@ -1,7 +1,5 @@
 import { defineBaseMetaTags } from 'svelte-meta-tags';
 
-export const prerender = true;
-
 export const load = ({ url }) => {
 	const baseTags = defineBaseMetaTags({
 		title: 'Pexisgle Portfolio',

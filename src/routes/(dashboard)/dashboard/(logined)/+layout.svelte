@@ -17,10 +17,10 @@
 		DarkMode
 	} from 'flowbite-svelte';
 	import { GridSolid, BellSolid } from 'flowbite-svelte-icons';
-	import SidebarNav from '$lib/components/dashboard/SidebarNav.svelte';
-	import ToastContainer from '$lib/components/dashboard/ToastContainer.svelte';
-	import { menuItems } from '$lib/menu';
-	import { clearToken, getGitHubUser, checkRepoAccess, type GitHubUser } from '$lib/auth';
+	import SidebarNav from '$lib/dashboard/components/SidebarNav.svelte';
+	import ToastContainer from '$lib/dashboard/components/ToastContainer.svelte';
+	import { menuItems } from '$lib/dashboard/menu';
+	import { clearToken, getGitHubUser, checkRepoAccess, type GitHubUser } from '$lib/dashboard/auth';
 	import { PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO } from '$env/static/public';
 
 	let { children, data } = $props();

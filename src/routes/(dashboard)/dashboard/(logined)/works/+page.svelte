@@ -15,9 +15,9 @@
 		Alert
 	} from 'flowbite-svelte';
 	import { PlusOutline, EditOutline, TrashBinOutline } from 'flowbite-svelte-icons';
-	import { ghListFiles, ghGetWork, ghDeleteFile } from '$lib/github';
-	import type { WorkFileData } from '$lib/github';
-	import { toast } from '$lib/stores/toast';
+	import { ghListFiles, ghGetWork, ghDeleteFile } from '$lib/dashboard/github';
+	import type { WorkFileData } from '$lib/dashboard/github';
+	import { toast } from '$lib/dashboard/stores/toast';
 
 	let { data } = $props();
 

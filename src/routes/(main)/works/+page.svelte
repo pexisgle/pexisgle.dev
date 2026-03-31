@@ -59,34 +59,36 @@
 </div>
 
 <style lang="sass">
-@use '$lib/variables.sass' as *
-
 .filter-btn
 	margin: 0.5em
 	border: none
-	border-radius: $radius-sm
+	border-radius: 8px
 	padding: 0.5em
 	cursor: pointer
 	color: var(--text-color)
 	background-color: var(--primary-color)
-	transition: background-color $transition-fast
+	transition: background-color 0.2s ease
 	&.active
 		background-color: var(--secondary-color)
 	&:hover
 		background-color: var(--accent-color)
 
 .works
-	@include grid-responsive(400px, 1em)
+	display: grid
+	grid-template-columns: repeat(auto-fill, minmax(400px, 1fr))
+	gap: 1em
+	justify-content: center
+	align-items: start
 	margin-bottom: 2em
 
 .work
 	border: 1px solid var(--text-color)
-	border-radius: $radius-sm
+	border-radius: 8px
 	padding: 1em
 	text-align: center
 	display: flex
 	flex-direction: column
-	gap: $gap-xs
+	gap: .5em
 
 	.work-link
 		text-decoration: none
@@ -94,7 +96,7 @@
 		display: flex
 		flex-direction: column
 		align-items: center
-		gap: $gap-xs
+		gap: .5em
 		&:hover h2
 			text-decoration: underline
 
@@ -105,7 +107,7 @@
 	.links
 		display: flex
 		flex-wrap: wrap
-		gap: $gap-xs
+		gap: .5em
 		justify-content: center
 		a
 			font-size: 0.9em

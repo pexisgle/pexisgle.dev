@@ -1,23 +1,12 @@
 <script lang="ts">
-	import {
-		Button,
-		Label,
-		Input,
-		Helper,
-		Breadcrumb,
-		BreadcrumbItem,
-		Heading,
-		Card,
-		Modal,
-		Fileupload
-	} from 'flowbite-svelte';
-	import { EditOutline, TrashBinOutline, UploadOutline } from 'flowbite-svelte-icons';
+	import { Button, Label, Input, Breadcrumb, BreadcrumbItem, Heading, Card } from 'flowbite-svelte';
+	import { EditOutline, TrashBinOutline } from 'flowbite-svelte-icons';
 	import { flip } from 'svelte/animate';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
-	import { toast } from '$lib/stores/toast';
+	import { toast } from '$lib/dashboard/stores/toast';
 	import typia from 'typia';
-	import { ghReadJsonData, ghWriteJsonData } from '$lib/github';
+	import { ghReadJsonData, ghWriteJsonData } from '$lib/dashboard/github';
 
 	let { data } = $props();
 	type SnsItem = {
@@ -47,18 +36,15 @@
 	let reorderedItems = $state<SnsItem[] | null>(null);
 	let draggingIndex = $state<number | null>(null);
 
-	// Import state
-	let importModalOpen = $state(false);
-	let importFile = $state<File | null>(null);
-
 	// Derived
 	let localSnsItems = $derived(reorderedItems ?? items.slice().sort((a, b) => a.order - b.order));
 
 	onMount(async () => {
 		try {
-			const { data: sns_data } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
-			items = sns_data;
-			formOrder = sns_data.length > 0 ? Math.max(...sns_data.map((s) => s.order), -1) + 1 : 0;
+			const { data: sns_data } = await ghReadJsonData(data.token, 'sns.json', []);
+			const validation = typia.validate<SnsItem[]>(sns_data);
+			items = validation.success ? validation.data : [];
+			formOrder = items.length > 0 ? Math.max(...items.map((s) => s.order), -1) + 1 : 0;
 		} catch (e) {
 			toast.error('データの読み込みに失敗しました: ' + e);
 		} finally {
@@ -105,7 +91,9 @@
 	async function handleCreate() {
 		saving = true;
 		try {
-			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
+			const { data: raw_sns_data, sha } = await ghReadJsonData(data.token, 'sns.json', []);
+			const validation = typia.validate<SnsItem[]>(raw_sns_data);
+			const sns_data = validation.success ? validation.data : [];
 			const newItem: SnsItem = {
 				id: crypto.randomUUID(),
 				name: formName,
@@ -130,7 +118,9 @@
 		if (!editingId) return;
 		saving = true;
 		try {
-			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
+			const { data: raw_sns_data, sha } = await ghReadJsonData(data.token, 'sns.json', []);
+			const validation = typia.validate<SnsItem[]>(raw_sns_data);
+			const sns_data = validation.success ? validation.data : [];
 			const updated = sns_data.map((s) =>
 				s.id === editingId
 					? {
@@ -157,7 +147,9 @@
 	async function handleDelete(id: string) {
 		saving = true;
 		try {
-			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
+			const { data: raw_sns_data, sha } = await ghReadJsonData(data.token, 'sns.json', []);
+			const validation = typia.validate<SnsItem[]>(raw_sns_data);
+			const sns_data = validation.success ? validation.data : [];
 			const deleted = sns_data.find((s) => s.id === id);
 			const updated = sns_data.filter((s) => s.id !== id);
 			await ghWriteJsonData(
@@ -180,7 +172,9 @@
 	async function handleReorder() {
 		saving = true;
 		try {
-			const { data: sns_data, sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
+			const { data: raw_sns_data, sha } = await ghReadJsonData(data.token, 'sns.json', []);
+			const validation = typia.validate<SnsItem[]>(raw_sns_data);
+			const sns_data = validation.success ? validation.data : [];
 			const reordered = localSnsItems.map((item, index) => {
 				const original = sns_data.find((s) => s.id === item.id);
 				return original ? { ...original, order: index } : { ...item, order: index };
@@ -195,38 +189,6 @@
 		} finally {
 			saving = false;
 		}
-	}
-
-	async function handleImport() {
-		if (!importFile) return;
-		saving = true;
-		try {
-			const text = await importFile.text();
-			const parsedRaw = JSON.parse(text);
-			const validation = typia.validate<SnsItem[]>(parsedRaw);
-			if (!validation.success) throw new Error('Invalid format: expected an array');
-			const parsed = validation.data;
-			const { sha } = await ghReadJsonData<SnsItem[]>(data.token, 'sns.json', []);
-			const withIds = parsed.map((item, index) => ({
-				...item,
-				id: item.id ?? crypto.randomUUID(),
-				order: item.order ?? index
-			}));
-			await ghWriteJsonData(data.token, 'sns.json', withIds, sha, 'import sns');
-			items = withIds;
-			importModalOpen = false;
-			importFile = null;
-			toast.success('インポートが完了しました');
-		} catch (e) {
-			toast.error('インポートに失敗しました: ' + e);
-		} finally {
-			saving = false;
-		}
-	}
-
-	function handleImportFormSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		handleImport();
 	}
 
 	// DnD Logic
@@ -280,15 +242,6 @@
 				<Button size="sm" color="alternative" onclick={toggleReorder}>キャンセル</Button>
 			{:else}
 				<Button color="alternative" size="sm" onclick={toggleReorder}>並び替え</Button>
-				<Button
-					color="alternative"
-					size="sm"
-					onclick={() => (importModalOpen = true)}
-					class="gap-2"
-				>
-					<UploadOutline class="h-4 w-4" />
-					インポート
-				</Button>
 			{/if}
 		</div>
 	</div>
@@ -439,30 +392,3 @@
 		</div>
 	</div>
 </div>
-
-<!-- Import Modal -->
-<Modal bind:open={importModalOpen} size="sm" title="SNSをインポート" autoclose={false}>
-	<form onsubmit={handleImportFormSubmit} class="space-y-4">
-		<div>
-			<Label for="import-file">JSONファイル</Label>
-			<Fileupload
-				id="import-file"
-				name="file"
-				accept=".json"
-				onchange={(e) => {
-					const target = e.target as HTMLInputElement;
-					importFile = target.files?.[0] || null;
-				}}
-				required
-			/>
-			<Helper class="mt-2">SNSデータを含むJSONファイルを選択してください</Helper>
-		</div>
-
-		<div class="flex justify-end gap-2">
-			<Button type="button" color="alternative" onclick={() => (importModalOpen = false)}>
-				キャンセル
-			</Button>
-			<Button type="submit" color="blue" disabled={!importFile || saving}>インポート</Button>
-		</div>
-	</form>
-</Modal>

@@ -1,17 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import type { MenuItem } from '$lib/dashboard/menu';
 	import { SidebarGroup, SidebarItem } from 'flowbite-svelte';
-	import { GridSolid } from 'flowbite-svelte-icons';
-	import { iconMap } from '$lib/menu';
-
 	interface Props {
 		onclick?: () => void;
-		items: {
-			label: string;
-			href: string;
-			iconName: string;
-			exact?: boolean;
-		}[];
+		items: MenuItem[];
 	}
 
 	let { onclick, items = [] }: Props = $props();
@@ -22,7 +15,6 @@
 
 <SidebarGroup>
 	{#each items as item (item.href)}
-		{@const Icon = iconMap[item.iconName] || GridSolid}
 		<SidebarItem
 			label={item.label}
 			href={item.href}
@@ -32,7 +24,7 @@
 			{onclick}
 		>
 			{#snippet icon()}
-				<Icon class={iconClass} />
+				<item.icon class={iconClass} />
 			{/snippet}
 		</SidebarItem>
 	{/each}

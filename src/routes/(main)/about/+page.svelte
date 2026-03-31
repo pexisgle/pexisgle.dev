@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import ModelViewer from '$lib/components/main/ModelViewer.svelte';
+	import ModelViewer from '$lib/main/components/ModelViewer.svelte';
 	import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
 </script>
@@ -138,22 +138,28 @@
 </div>
 
 <style lang="sass">
-@use '$lib/variables.sass' as *
 
 .bg
     display: flex
-    gap: $gap-lg
+    gap: 2em
 
-    @include respond-to('md', 'max')
+
+    @media (max-width: 768px)
         flex-direction: column
 
 .card
     width: 500px
     height: fit-content
-    @include glass-card(2rem, $radius-lg)
+    padding: 2rem
+    border-radius: 16px
+    background: rgba(255, 255, 255, 0.1)
+    box-shadow:  0 4px 30px rgba(0, 0, 0, 0.1) 
+    backdrop-filter: blur(10px)
+    -webkit-backdrop-filter: blur(10px)
+    border: 1px solid rgba(255, 255, 255, 0.3) 
     overflow: visible
 
-    @include respond-to('md', 'max')
+    @media (max-width: 768px)
         width: 100%
 
     h1
@@ -169,7 +175,7 @@
         margin-bottom: 1rem
     .sns
         display: flex
-        gap: $gap-xs
+        gap: .5em
         justify-content: center
         align-items: center
         margin-bottom: 1rem
@@ -178,20 +184,18 @@
             align-items: center
             gap: 0.5rem
             padding: .5rem .5rem
-            background: $glass-bg-hover
-            border: 1px solid $glass-border
-            border-radius: $radius-md
+            background: rgba(255, 255, 255, 0.15) 
+            border: 1px solid rgba(255, 255, 255, 0.3)
+            border-radius: 12px
             color: #fff
             text-decoration: none
             font-weight: 900
             backdrop-filter: blur(5px)
-            @include hover-lift-subtle
     &.skil-card
         text-align: left
         width: 100%
 
         h2
-            @include icon-text
             color: #9b59b6
             text-shadow: 0 2px 10px rgba(155, 89, 182, 0.3)
 
@@ -200,13 +204,12 @@
         width: 100%
 
         h2
-            @include icon-text
             color: #3498db
             text-shadow: 0 2px 10px rgba(52, 152, 219, 0.3)
 
         .model-container
             width: 100%
-            border-radius: $radius-md
+            border-radius: 12px
             overflow: hidden
             background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(41, 128, 185, 0.1) 100%)
             border: 1px solid rgba(52, 152, 219, 0.3)
@@ -214,7 +217,7 @@
 
     .skils
         display: flex
-        gap: $gap-xs
+        gap: 12px
         flex-wrap: wrap
         .skil
             position: relative
@@ -230,9 +233,9 @@
             :global(svg), img
                 width: 100%
                 height: 100%
-                transition: $transition-transform
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
             img
-                border-radius: $radius-sm
+                border-radius: 1em
 
             &:hover
                 z-index: 10
@@ -262,7 +265,7 @@
                 height: 50px
                 background: rgba(0,0,0, 0.85)
                 border: 1px solid rgba(255, 255, 255, 0.2)
-                border-radius: $radius-md
+                border-radius: 12px
                 opacity: 0
                 transition: all 0.3s var(--ease-in)
                 z-index: -1
@@ -275,11 +278,11 @@
                 left: 55px
                 transform: translateY(-50%)
                 padding: 0.5rem 0.7rem
-                border-radius: $radius-sm
+                border-radius: 1em
                 opacity: 0
                 white-space: nowrap
                 visibility: hidden
-                transition: $transition-transform
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
                 pointer-events: none
                 display: flex
                 flex-direction: column
@@ -300,18 +303,17 @@
             display: flex
             gap: 1.5rem
 
-            @include respond-to('md', 'max')
+            @media (max-width: 768px)
                 flex-direction: column
 
             .section
                 flex: 1
                 min-width: 0
 
-                @include respond-to('md', 'max')
+                @media (max-width: 768px)
                     margin-bottom: 1rem
 
                 h2
-                    @include icon-text(0.4rem)
                     color: #4a90e2
                     text-shadow: 0 2px 10px rgba(74, 144, 226, 0.3)
                     margin-bottom: 0.75rem
@@ -337,8 +339,8 @@
                 padding: 0.3rem 0.6rem
                 background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)
                 border: 1px solid rgba(255, 255, 255, 0.2)
-                border-radius: $radius-sm
-                transition: $transition-all-normal
+                border-radius: 1em
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
                 position: relative
                 overflow: hidden
                 cursor: pointer

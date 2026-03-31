@@ -17,8 +17,6 @@ SvelteKit と Cloudflare D1 を使用して構築された、個人的な Web �
 
 ### Database & Backend
 
-- **Database:** Cloudflare D1
-- **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
 - **Authentication:** [Arctic](https://arctic.js.org/) (GitHub OAuth), [Oslo](https://oslojs.dev/)
 
 ### UI / Styling
@@ -30,7 +28,6 @@ SvelteKit と Cloudflare D1 を使用して構築された、個人的な Web �
 
 ### Form & Validation
 
-- **Form Handling:** [Superforms](https://superforms.rocks/)
 - **Validation:** [Typia](https://typia.io/)
 
 ## 🛠️ 開発環境のセットアップ (Setup)
@@ -58,19 +55,6 @@ cp .env.example .env
 `.env` には以下の情報の記述が必要です（実際のファイルを確認してください）:
 
 - GitHub OAuth Client ID / Secret
-- Database 接続情報
-
-### データベースのセットアップ (Database Setup)
-
-ローカル開発用にデータベースのマイグレーションを行います。
-
-```bash
-# マイグレーションファイルの生成
-bun run db:generate
-
-# ローカル D1 へのマイグレーション適用
-bun run db:migrate
-```
 
 ## 📜 利用可能なスクリプト (Scripts)
 
@@ -83,18 +67,6 @@ bun run db:migrate
 | `bun run dev`     | ローカル開発サーバーを起動します (Vite)             |
 | `bun run preview` | ビルドを行い、Wrangler でプレビュー環境を起動します |
 | `bun run build`   | プロダクションビルドを実行します                    |
-| `bun run deploy`  | Cloudflare へデプロイします                         |
-
-### データベース (Database / Drizzle)
-
-| コマンド                  | 説明                                                                  |
-| ------------------------- | --------------------------------------------------------------------- |
-| `bun run db:generate`     | スキーマ変更に基づいてマイグレーションファイルを生成します            |
-| `bun run db:migrate`      | **ローカル** D1 データベースにマイグレーションを適用します            |
-| `bun run db:migrate:prod` | **本番** (Cloudflare) データベースにマイグレーションを適用します      |
-| `bun run db:studio`       | **ローカル** データベースを確認するための Drizzle Studio を起動します |
-| `bun run db:studio:prod`  | **本番** データベースを確認するための Drizzle Studio を起動します     |
-| `bun run db:push`         | スキーマをデータベースに直接プッシュします（プロトタイピング用）      |
 
 ### コード品質 (Linting & Formatting)
 
@@ -108,11 +80,9 @@ bun run db:migrate
 
 - `src/lib`: コンポーネント、ユーティリティ、型定義など
   - `server`: サーバーサイドのロジック、DBスキーマなど
-  - `components`: 再利用可能な Svelte コンポーネント
 - `src/routes`: SvelteKit のルーティング定義
   - `(app)`: 一般公開ページ
   - `(dashboard)`: 管理者用ダッシュボード（認証が必要）
-- `drizzle`: データベースのマイグレーションファイル
 - `static`: 静的ファイル
 
 ## 📄 ライセンス (License)

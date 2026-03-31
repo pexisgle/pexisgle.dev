@@ -7,7 +7,6 @@ bun.lockb
 
 # Miscellaneous
 /static/
-/drizzle/
-/content/
 
-src/worker-configuration.d.ts
+/content/
+worker-configuration.d.ts

@@ -17,13 +17,13 @@
 		Alert
 	} from 'flowbite-svelte';
 	import { PlusOutline, TrashBinOutline } from 'flowbite-svelte-icons';
-	import { ghGetWork, ghPutWork, ghUploadImage, ghDeleteFile } from '$lib/github';
+	import { ghGetWork, ghPutWork, ghUploadImage, ghDeleteFile } from '$lib/dashboard/github';
 
 	let { data } = $props();
-	import type { WorkFileData } from '$lib/github';
-	import CartaEditor from '$lib/components/dashboard/CartaEditor.svelte';
-	import { workTypesOptions } from '$lib/types/work';
-	import { toast } from '$lib/stores/toast';
+	import type { WorkFileData } from '$lib/dashboard/github';
+	import CartaEditor from '$lib/dashboard/components/CartaEditor.svelte';
+	import { workTypesOptions } from '$lib/main/types/work';
+	import { toast } from '$lib/dashboard/stores/toast';
 
 	const workId = $derived(page.params.id ?? '');
 

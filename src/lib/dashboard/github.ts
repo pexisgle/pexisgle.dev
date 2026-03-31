@@ -9,7 +9,7 @@ import { PUBLIC_GITHUB_OWNER, PUBLIC_GITHUB_REPO } from '$env/static/public';
 import { encode } from '@jsquash/webp';
 import resize, { initResize } from '@jsquash/resize';
 import matter from 'gray-matter';
-import { octokitWithToken } from '$lib/auth';
+import { octokitWithToken } from '$lib/dashboard/auth';
 
 const COMMITTER = { name: 'pexisgle-dashboard', email: 'bot@pexisgle.dev' };
 
@@ -166,11 +166,11 @@ async function convertToWebP(buffer: ArrayBuffer): Promise<ArrayBuffer> {
 // ─── JSON data helpers ─────────────────────────────────────────────────────────
 
 /** Read a JSON data file from content/data/. Returns parsed value or default. */
-export async function ghReadJsonData<T>(
+export async function ghReadJsonData(
 	token: string,
 	filename: string,
-	defaultValue: T
-): Promise<{ data: T; sha: string | null }> {
+	defaultValue: object
+): Promise<{ data: object; sha: string | null }> {
 	const path = `content/data/${filename}`;
 	const file = await ghGetFile(token, path);
 	if (!file) return { data: defaultValue, sha: null };
@@ -178,21 +178,17 @@ export async function ghReadJsonData<T>(
 		const bytes = new Uint8Array(Buffer.from(file.content, 'base64'));
 		const decoded = new TextDecoder().decode(bytes);
 		const parsed = JSON.parse(decoded);
-		const validation = typia.validate<T>(parsed);
-		if (!validation.success) {
-			return { data: defaultValue, sha: file.sha };
-		}
-		return { data: validation.data as T, sha: file.sha };
+		return { data: parsed, sha: file.sha };
 	} catch {
 		return { data: defaultValue, sha: file.sha };
 	}
 }
 
 /** Write a JSON data file to content/data/. */
-export async function ghWriteJsonData<T>(
+export async function ghWriteJsonData(
 	token: string,
 	filename: string,
-	data: T,
+	data: object,
 	sha: string | null,
 	message: string
 ): Promise<void> {

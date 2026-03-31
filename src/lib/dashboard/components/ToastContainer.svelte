@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { toast } from '$lib/stores/toast';
+	import { toast } from '$lib/dashboard/stores/toast';
 	import { Toast } from 'flowbite-svelte';
 	import {
 		CheckCircleSolid,

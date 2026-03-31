@@ -32,14 +32,17 @@
 </div>
 
 <style lang="sass">
-@use '$lib/variables.sass' as *
 
 h1
 	font-size: 4em
 	margin-bottom: 0.2em
 
 .posts
-	@include grid-responsive(350px, 2em)
+	display: grid
+	grid-template-columns: repeat(auto-fill, minmax(350px, 1fr))
+	gap: 2em
+	justify-content: center
+	align-items: start
 	margin-bottom: 2em
 
 .post
@@ -51,7 +54,10 @@ h1
 	flex-direction: column
 	gap: 0.8em
 	background: rgba(255, 255, 255, 0.02)
-	@include hover-lift(-5px, 0 5px 15px rgba(0, 0, 0, 0.2))
+	transition: transform 0.2s ease, box-shadow 0.2s ease
+	&:hover
+		transform: translateY(-5px)
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2)
 	
 	&:hover
 		background: rgba(255, 255, 255, 0.05)
@@ -77,5 +83,8 @@ h1
 		margin: 0
 		line-height: 1.6
 		opacity: 0.9
-		@include line-clamp(3)
+		display: -webkit-box
+		-webkit-line-clamp: 3
+		-webkit-box-orient: vertical
+		overflow: hidden
 </style>

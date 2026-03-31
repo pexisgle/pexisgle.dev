@@ -14,14 +14,14 @@
 		Spinner
 	} from 'flowbite-svelte';
 	import { TrashBinOutline, PlusOutline } from 'flowbite-svelte-icons';
-	import { ghUploadImage, ghPutWork } from '$lib/github';
+	import { ghUploadImage, ghPutWork } from '$lib/dashboard/github';
 
 	let { data } = $props();
-	import type { WorkFileData } from '$lib/github';
+	import type { WorkFileData } from '$lib/dashboard/github';
 	import typia from 'typia';
-	import CartaEditor from '$lib/components/dashboard/CartaEditor.svelte';
-	import { workTypesOptions } from '$lib/types/work';
-	import { toast } from '$lib/stores/toast';
+	import CartaEditor from '$lib/dashboard/components/CartaEditor.svelte';
+	import { workTypesOptions } from '$lib/main/types/work';
+	import { toast } from '$lib/dashboard/stores/toast';
 
 	// Form state
 	let id = $state('');
