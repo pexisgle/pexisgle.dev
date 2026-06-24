@@ -15,7 +15,7 @@ jobs:
       PUBLIC_GITHUB_OWNER: ${{ github.repository_owner }}
       PUBLIC_GITHUB_REPO: ${{ github.event.repository.name }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref }}
       - uses: oven-sh/setup-bun@v2
