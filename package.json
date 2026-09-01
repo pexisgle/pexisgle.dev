@@ -66,7 +66,7 @@
 		"ress": "^5.0.2",
 		"svelte-exmarkdown": "^5.0.2",
 		"three": "^0.183.2",
-		"typia": "^13.2.0"
+		"typia": "^14.0.4"
 	},
 	"lint-staged": {
 		"*.{js,ts,svelte}": [
